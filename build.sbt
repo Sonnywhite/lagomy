@@ -123,7 +123,7 @@ lazy val sellingImpl = project("selling-impl")
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(messagingApi, ratingApi, productApi)
+  .dependsOn(messagingApi, ratingApi, productManagmentApi)
 
 def project(id: String) = Project(id, base = file(id))
   .settings(eclipseSettings: _*)
