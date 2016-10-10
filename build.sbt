@@ -107,6 +107,24 @@ lazy val messagingImpl = project("messaging-impl")
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(messagingApi, userManagementApi)
 
+lazy val sellingApi = project("selling-api")
+  .settings(
+    version := "1.0-SNAPSHOT",
+    libraryDependencies += lagomJavadslApi
+  )
+  
+lazy val sellingImpl = project("selling-impl")
+  .enablePlugins(LagomJava)
+  .settings(
+    version := "1.0-SNAPSHOT",
+    libraryDependencies ++= Seq(
+      lagomJavadslPersistence,
+      lagomJavadslTestKit
+    )
+  )
+  .settings(lagomForkedTestSettings: _*)
+  .dependsOn(messagingApi, ratingApi, productApi)
+
 def project(id: String) = Project(id, base = file(id))
   .settings(eclipseSettings: _*)
   .settings(javacOptions in compile ++= Seq("-encoding", "UTF-8", "-source", "1.8", "-target", "1.8", "-Xlint:unchecked", "-Xlint:deprecation"))
