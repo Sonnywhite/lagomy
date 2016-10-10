@@ -69,7 +69,7 @@ lazy val productManagmentImpl = project("productManagement-impl")
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(productManagmentApi, messagingApi, userManagementApi)
+  .dependsOn(productManagmentApi)
 
 lazy val ratingApi = project("rating-api")
   .settings(
