@@ -13,29 +13,29 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.lagomy.productManagement.impl.HelloCommand.*;
+import org.lagomy.productManagement.impl.ProductCommand.*;
 
 import org.lagomy.productManagement.api.GreetingMessage;
-import org.lagomy.productManagement.api.HelloService;
+import org.lagomy.productManagement.api.ProductService;
 
 /**
  * Implementation of the HelloService.
  */
-public class HelloServiceImpl implements HelloService {
+public class ProductServiceImpl implements ProductService {
 
   private final PersistentEntityRegistry persistentEntityRegistry;
 
   @Inject
-  public HelloServiceImpl(PersistentEntityRegistry persistentEntityRegistry) {
+  public ProductServiceImpl(PersistentEntityRegistry persistentEntityRegistry) {
     this.persistentEntityRegistry = persistentEntityRegistry;
-    persistentEntityRegistry.register(HelloWorld.class);
+    persistentEntityRegistry.register(ProductWorld.class);
   }
 
   @Override
   public ServiceCall<NotUsed, String> hello(String id) {
     return request -> {
       // Look up the hello world entity for the given ID.
-      PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloWorld.class, id);
+      PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, id);
       // Ask the entity the Hello command.
       return ref.ask(new Hello("<<" + id + ">>", Optional.empty()));
     };
@@ -45,7 +45,7 @@ public class HelloServiceImpl implements HelloService {
   public ServiceCall<GreetingMessage, Done> useGreeting(String id) {
     return request -> {
       // Look up the hello world entity for the given ID.
-      PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloWorld.class, id);
+      PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, id);
       // Tell the entity to use the greeting message specified.
       return ref.ask(new UseGreetingMessage(request.message));
     };

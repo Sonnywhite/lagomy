@@ -18,7 +18,7 @@ import com.lightbend.lagom.serialization.Jsonable;
  * By convention, the events should be inner classes of the interface, which
  * makes it simple to get a complete picture of what events an entity has.
  */
-public interface HelloEvent extends Jsonable {
+public interface ProductEvent extends Jsonable {
 
   /**
    * An event that represents a change in greeting message.
@@ -26,7 +26,7 @@ public interface HelloEvent extends Jsonable {
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
-  public final class GreetingMessageChanged implements HelloEvent {
+  public final class GreetingMessageChanged implements ProductEvent {
     public final String message;
 
     @JsonCreator

@@ -25,7 +25,7 @@ import akka.Done;
  * makes it simple to get a complete picture of what commands an entity
  * supports.
  */
-public interface HelloCommand extends Jsonable {
+public interface ProductCommand extends Jsonable {
 
   /**
    * A command to switch the greeting message.
@@ -36,7 +36,7 @@ public interface HelloCommand extends Jsonable {
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
-  public final class UseGreetingMessage implements HelloCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+  public final class UseGreetingMessage implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
     public final String message;
 
     @JsonCreator
@@ -77,7 +77,7 @@ public interface HelloCommand extends Jsonable {
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
-  public final class Hello implements HelloCommand, PersistentEntity.ReplyType<String> {
+  public final class Hello implements ProductCommand, PersistentEntity.ReplyType<String> {
     public final String name;
     public final Optional<String> organization;
 

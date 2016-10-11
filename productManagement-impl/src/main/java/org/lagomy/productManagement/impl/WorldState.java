@@ -13,7 +13,7 @@ import com.google.common.base.Preconditions;
 import com.lightbend.lagom.serialization.CompressedJsonable;
 
 /**
- * The state for the {@link HelloWorld} entity.
+ * The state for the {@link ProductWorld} entity.
  */
 @SuppressWarnings("serial")
 @Immutable

@@ -18,7 +18,7 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
  * This describes everything that Lagom needs to know about how to serve and
  * consume the HelloService.
  */
-public interface HelloService extends Service {
+public interface ProductService extends Service {
 
   /**
    * Example: curl http://localhost:9000/api/hello/Alice
@@ -34,9 +34,9 @@ public interface HelloService extends Service {
   @Override
   default Descriptor descriptor() {
     // @formatter:off
-    return named("helloserviceDaniel").withCalls(
-        pathCall("/api/helloDaniel/:id",  this::hello),
-        pathCall("/api/helloDaniel/:id", this::useGreeting)
+    return named("productService").withCalls(
+        pathCall("/api/product/:id",  this::hello),
+        pathCall("/api/product/:id", this::useGreeting)
       ).withAutoAcl(true);
     // @formatter:on
   }

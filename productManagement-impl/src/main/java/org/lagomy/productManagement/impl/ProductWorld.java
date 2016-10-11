@@ -6,9 +6,9 @@ package org.lagomy.productManagement.impl;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.lagomy.productManagement.impl.HelloCommand.Hello;
-import org.lagomy.productManagement.impl.HelloCommand.UseGreetingMessage;
-import org.lagomy.productManagement.impl.HelloEvent.GreetingMessageChanged;
+import org.lagomy.productManagement.impl.ProductCommand.Hello;
+import org.lagomy.productManagement.impl.ProductCommand.UseGreetingMessage;
+import org.lagomy.productManagement.impl.ProductEvent.GreetingMessageChanged;
 
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 
@@ -33,7 +33,7 @@ import akka.Done;
  * This entity defines one event, the {@link GreetingMessageChanged} event,
  * which is emitted when a {@link UseGreetingMessage} command is received.
  */
-public class HelloWorld extends PersistentEntity<HelloCommand, HelloEvent, WorldState> {
+public class ProductWorld extends PersistentEntity<ProductCommand, ProductEvent, WorldState> {
 
   /**
    * An entity can define different behaviours for different states, but it will
