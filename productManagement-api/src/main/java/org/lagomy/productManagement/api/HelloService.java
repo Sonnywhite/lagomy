@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 Lightbend Inc. <http://www.lightbend.com>
  */
-package org.lagomy.productManagement;
+package org.lagomy.productManagement.api;
 
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.pathCall;
@@ -34,9 +34,9 @@ public interface HelloService extends Service {
   @Override
   default Descriptor descriptor() {
     // @formatter:off
-    return named("helloservice").withCalls(
-        pathCall("/api/hello/:id",  this::hello),
-        pathCall("/api/hello/:id", this::useGreeting)
+    return named("helloserviceDaniel").withCalls(
+        pathCall("/api/helloDaniel/:id",  this::hello),
+        pathCall("/api/helloDaniel/:id", this::useGreeting)
       ).withAutoAcl(true);
     // @formatter:on
   }

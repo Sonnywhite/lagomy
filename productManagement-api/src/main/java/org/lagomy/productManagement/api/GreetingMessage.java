@@ -1,4 +1,4 @@
-package org.lagomy.productManagement;
+package org.lagomy.productManagement.api;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
