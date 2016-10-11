@@ -37,7 +37,7 @@ public class HelloServiceImpl implements HelloService {
       // Look up the hello world entity for the given ID.
       PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloWorld.class, id);
       // Ask the entity the Hello command.
-      return ref.ask(new Hello("<" + id + ">", Optional.empty()));
+      return ref.ask(new Hello("<<" + id + ">>", Optional.empty()));
     };
   }
 
