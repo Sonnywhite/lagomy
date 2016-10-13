@@ -19,7 +19,7 @@ import com.lightbend.lagom.serialization.Jsonable;
 import akka.Done;
 
 /**
- * This interface defines all the commands that the HelloWorld entity supports.
+ * This interface defines all the commands that the ProductWorld entity supports.
  * 
  * By convention, the commands should be inner classes of the interface, which
  * makes it simple to get a complete picture of what commands an entity
@@ -52,6 +52,50 @@ public interface ProductCommand extends Jsonable {
     }
 
     private boolean equalTo(UseGreetingMessage another) {
+      return message.equals(another.message);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + message.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("UseGreetingMessage").add("message", message).toString();
+    }
+  }
+
+  /**
+   * A command to switch the pass phrase.
+   * <p>
+   * It has a reply type of {@link akka.Done}, which is sent back to the caller
+   * when all the events emitted by this command are successfully persisted.
+   */
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class ChangePassPhraseCommand implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+    public final String message;
+    public final String phrase;
+
+    @JsonCreator
+    public ChangePassPhraseCommand(String message, String phrase) {
+        this.message = Preconditions.checkNotNull(message, "message");
+        this.phrase = Preconditions.checkNotNull(phrase, "phrase");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof ChangePassPhraseCommand && equalTo((ChangePassPhraseCommand) another);
+    }
+
+    private boolean equalTo(ChangePassPhraseCommand another) {
+        //TODO: update equal etc
       return message.equals(another.message);
     }
 

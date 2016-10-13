@@ -15,7 +15,8 @@ import javax.inject.Inject;
 
 import org.lagomy.productManagement.impl.ProductCommand.*;
 
-import org.lagomy.productManagement.api.GreetingMessage;
+import org.lagomy.productManagement.api.TheMessage;
+import org.lagomy.productManagement.api.ProductData;
 import org.lagomy.productManagement.api.ProductService;
 
 /**
@@ -42,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public ServiceCall<GreetingMessage, Done> useGreeting(String id) {
+  public ServiceCall<TheMessage, Done> useGreeting(String id) {
     return request -> {
       // Look up the hello world entity for the given ID.
       PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, id);
@@ -51,5 +52,15 @@ public class ProductServiceImpl implements ProductService {
     };
 
   }
+
+    @Override
+    public ServiceCall<ProductData, Done> usePassPhrase(String id) {
+    	return request -> {
+          // Look up the hello world entity for the given ID.
+          PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, id);
+          // Tell the entity to use the greeting message specified.
+          return ref.ask(new ChangePassPhraseCommand(request.message, request.phrase));
+        };
+    }
 
 }

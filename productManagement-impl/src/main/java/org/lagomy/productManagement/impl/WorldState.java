@@ -21,11 +21,13 @@ import com.lightbend.lagom.serialization.CompressedJsonable;
 public final class WorldState implements CompressedJsonable {
 
   public final String message;
+  public final String passPhrase;
   public final String timestamp;
 
   @JsonCreator
-  public WorldState(String message, String timestamp) {
+  public WorldState(String message, String passPhrase, String timestamp) {
     this.message = Preconditions.checkNotNull(message, "message");
+    this.passPhrase = Preconditions.checkNotNull(passPhrase, "passPhrase");
     this.timestamp = Preconditions.checkNotNull(timestamp, "timestamp");
   }
 

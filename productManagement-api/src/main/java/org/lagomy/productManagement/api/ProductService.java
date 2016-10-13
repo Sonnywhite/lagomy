@@ -29,14 +29,22 @@ public interface ProductService extends Service {
    * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
    * "Hi"}' http://localhost:9000/api/hello/Alice
    */
-  ServiceCall<GreetingMessage, Done> useGreeting(String id);
+  ServiceCall<TheMessage, Done> useGreeting(String id);
+
+  /**
+   * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
+   * "Hi"}' http://localhost:9000/api/hello/Alice
+   */
+  ServiceCall<ProductData, Done> usePassPhrase(String id);
+  
 
   @Override
   default Descriptor descriptor() {
     // @formatter:off
     return named("productService").withCalls(
         pathCall("/api/product/:id",  this::hello),
-        pathCall("/api/product/:id", this::useGreeting)
+        pathCall("/api/product/:id", this::useGreeting),
+        pathCall("/api/product/pass/:id", this::usePassPhrase)
       ).withAutoAcl(true);
     // @formatter:on
   }
