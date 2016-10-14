@@ -10,12 +10,12 @@ import com.google.common.base.Preconditions;
 
 @Immutable
 @JsonDeserialize
-public final class GreetingMessage {
+public final class TheMessage {
 
   public final String message;
 
   @JsonCreator
-  public GreetingMessage(String message) {
+  public TheMessage(String message) {
     this.message = Preconditions.checkNotNull(message, "message");
   }
 
@@ -23,10 +23,10 @@ public final class GreetingMessage {
   public boolean equals(@Nullable Object another) {
     if (this == another)
       return true;
-    return another instanceof GreetingMessage && equalTo((GreetingMessage) another);
+    return another instanceof TheMessage && equalTo((TheMessage) another);
   }
 
-  private boolean equalTo(GreetingMessage another) {
+  private boolean equalTo(TheMessage another) {
     return message.equals(another.message);
   }
 

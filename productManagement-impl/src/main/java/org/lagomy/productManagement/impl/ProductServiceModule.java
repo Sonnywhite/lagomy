@@ -5,14 +5,14 @@ package org.lagomy.productManagement.impl;
 
 import com.google.inject.AbstractModule;
 import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
-import org.lagomy.productManagement.api.HelloService;
+import org.lagomy.productManagement.api.ProductService;
 
 /**
  * The module that binds the HelloService so that it can be served.
  */
-public class HelloServiceModule extends AbstractModule implements ServiceGuiceSupport {
+public class ProductServiceModule extends AbstractModule implements ServiceGuiceSupport {
   @Override
   protected void configure() {
-    bindServices(serviceBinding(HelloService.class, HelloServiceImpl.class));
+    bindServices(serviceBinding(ProductService.class, ProductServiceImpl.class));
   }
 }

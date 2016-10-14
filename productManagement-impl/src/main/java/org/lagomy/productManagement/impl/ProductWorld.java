@@ -6,9 +6,11 @@ package org.lagomy.productManagement.impl;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.lagomy.productManagement.impl.HelloCommand.Hello;
-import org.lagomy.productManagement.impl.HelloCommand.UseGreetingMessage;
-import org.lagomy.productManagement.impl.HelloEvent.GreetingMessageChanged;
+import org.lagomy.productManagement.impl.ProductCommand.ChangePassPhraseCommand;
+import org.lagomy.productManagement.impl.ProductCommand.Hello;
+import org.lagomy.productManagement.impl.ProductCommand.UseGreetingMessage;
+import org.lagomy.productManagement.impl.ProductEvent.GreetingMessageChanged;
+import org.lagomy.productManagement.impl.ProductEvent.PassPhraseChangedEvent;
 
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 
@@ -33,7 +35,7 @@ import akka.Done;
  * This entity defines one event, the {@link GreetingMessageChanged} event,
  * which is emitted when a {@link UseGreetingMessage} command is received.
  */
-public class HelloWorld extends PersistentEntity<HelloCommand, HelloEvent, WorldState> {
+public class ProductWorld extends PersistentEntity<ProductCommand, ProductEvent, WorldState> {
 
   /**
    * An entity can define different behaviours for different states, but it will
@@ -52,7 +54,7 @@ public class HelloWorld extends PersistentEntity<HelloCommand, HelloEvent, World
      * Otherwise, the default state is to use the Hello greeting.
      */
     BehaviorBuilder b = newBehaviorBuilder(
-        snapshotState.orElse(new WorldState("Hello", LocalDateTime.now().toString())));
+        snapshotState.orElse(new WorldState("Hello", "...", LocalDateTime.now().toString())));
 
     /*
      * Command handler for the UseGreetingMessage command.
@@ -70,7 +72,27 @@ public class HelloWorld extends PersistentEntity<HelloCommand, HelloEvent, World
     b.setEventHandler(GreetingMessageChanged.class,
         // We simply update the current state to use the greeting message from
         // the event.
-        evt -> new WorldState(evt.message, LocalDateTime.now().toString()));
+        evt -> new WorldState(evt.message, "No passPhrase", LocalDateTime.now().toString()));
+    
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    /*
+     * Command handler for the ChangePassPhrase command.
+     */
+    b.setCommandHandler(ChangePassPhraseCommand.class, (cmd, ctx) ->
+    // In response to this command, we want to first persist it as a
+    // PassPhraseChangedEvent
+    ctx.thenPersist(new PassPhraseChangedEvent(cmd.message, cmd.phrase),
+        // Then once the event is successfully persisted, we respond with done.
+        evt -> ctx.reply(Done.getInstance())));
+
+    /*
+     * Event handler for the PassPhraseChangedEvent .
+     */
+    b.setEventHandler(PassPhraseChangedEvent.class,
+        // We simply update the current state to use the greeting message from
+        // the event.
+        evt -> new WorldState(evt.message, evt.phrase, LocalDateTime.now().toString()));
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
     /*
      * Command handler for the Hello command.
@@ -79,7 +101,7 @@ public class HelloWorld extends PersistentEntity<HelloCommand, HelloEvent, World
         // Get the greeting from the current state, and prepend it to the name
         // that we're sending
         // a greeting to, and reply with that message.
-        (cmd, ctx) -> ctx.reply(state().message + ", " + cmd.name + "!"));
+        (cmd, ctx) -> ctx.reply(state().message + ", " + cmd.name + "!\nPassPhrase: " + state().passPhrase));
 
     /*
      * We've defined all our behaviour, so build and return it.
