@@ -1,7 +1,7 @@
 package org.lagomy.message.api;
 
 /**
- * Created by spyrosmartel on 2016-10-12.
+ * Created by Seva Meyer on 2016-10-12.
  */
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

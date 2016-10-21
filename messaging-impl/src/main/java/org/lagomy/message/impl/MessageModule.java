@@ -5,7 +5,7 @@ import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
 import org.lagomy.message.api.MessageService;
 
 /**
- * Created by spyrosmartel on 2016-10-13.
+ * Created by Seva Meyer on 2016-10-13.
  */
 public class MessageModule extends AbstractModule implements ServiceGuiceSupport {
     @Override

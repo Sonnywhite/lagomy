@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
 /**
- * Created by spyrosmartel on 2016-10-13.
+ * Created by Seva Meyer on 2016-10-13.
  */
 
 @SuppressWarnings("serial")

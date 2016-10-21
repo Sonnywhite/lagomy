@@ -40,7 +40,7 @@ lazy val userManagementApi = project("userManagement-api")
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
-  
+
 lazy val userManagementImpl = project("userManagement-impl")
   .enablePlugins(LagomJava)
   .settings(
@@ -58,7 +58,7 @@ lazy val productManagmentApi = project("productManagement-api")
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
-  
+
 lazy val productManagmentImpl = project("productManagement-impl")
   .enablePlugins(LagomJava)
   .settings(
@@ -76,7 +76,7 @@ lazy val ratingApi = project("rating-api")
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
-  
+
 lazy val ratingImpl = project("rating-impl")
   .enablePlugins(LagomJava)
   .settings(
@@ -112,7 +112,7 @@ lazy val sellingApi = project("selling-api")
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
-  
+
 lazy val sellingImpl = project("selling-impl")
   .enablePlugins(LagomJava)
   .settings(
