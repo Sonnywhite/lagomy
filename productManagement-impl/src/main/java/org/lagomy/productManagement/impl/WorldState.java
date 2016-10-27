@@ -6,6 +6,8 @@ package org.lagomy.productManagement.impl;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import org.lagomy.productManagement.api.Product;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
@@ -20,14 +22,12 @@ import com.lightbend.lagom.serialization.CompressedJsonable;
 @JsonDeserialize
 public final class WorldState implements CompressedJsonable {
 
-  public final String message;
-  public final String passPhrase;
+  public final Product product;
   public final String timestamp;
 
   @JsonCreator
-  public WorldState(String message, String passPhrase, String timestamp) {
-    this.message = Preconditions.checkNotNull(message, "message");
-    this.passPhrase = Preconditions.checkNotNull(passPhrase, "passPhrase");
+  public WorldState(Product product, String timestamp) {
+    this.product = Preconditions.checkNotNull(product, "product");
     this.timestamp = Preconditions.checkNotNull(timestamp, "timestamp");
   }
 
@@ -39,19 +39,19 @@ public final class WorldState implements CompressedJsonable {
   }
 
   private boolean equalTo(WorldState another) {
-    return message.equals(another.message) && timestamp.equals(another.timestamp);
+    return product.equals(another.product) && timestamp.equals(another.timestamp);
   }
 
   @Override
   public int hashCode() {
     int h = 31;
-    h = h * 17 + message.hashCode();
+    h = h * 17 + product.hashCode();
     h = h * 17 + timestamp.hashCode();
     return h;
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper("WorldState").add("message", message).add("timestamp", timestamp).toString();
+    return MoreObjects.toStringHelper("WorldState").add("product", product).add("timestamp", timestamp).toString();
   }
 }

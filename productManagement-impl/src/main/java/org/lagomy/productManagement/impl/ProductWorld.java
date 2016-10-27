@@ -6,11 +6,10 @@ package org.lagomy.productManagement.impl;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.lagomy.productManagement.impl.ProductCommand.ChangePassPhraseCommand;
+import org.lagomy.productManagement.api.Product;
+import org.lagomy.productManagement.impl.ProductCommand.AddProduct;
 import org.lagomy.productManagement.impl.ProductCommand.Hello;
-import org.lagomy.productManagement.impl.ProductCommand.UseGreetingMessage;
-import org.lagomy.productManagement.impl.ProductEvent.GreetingMessageChanged;
-import org.lagomy.productManagement.impl.ProductEvent.PassPhraseChangedEvent;
+import org.lagomy.productManagement.impl.ProductEvent.ProductAdded;
 
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 
@@ -54,46 +53,12 @@ public class ProductWorld extends PersistentEntity<ProductCommand, ProductEvent,
      * Otherwise, the default state is to use the Hello greeting.
      */
     BehaviorBuilder b = newBehaviorBuilder(
-        snapshotState.orElse(new WorldState("Hello", "...", LocalDateTime.now().toString())));
+        snapshotState.orElse(new WorldState(Product.getDummy(), LocalDateTime.now().toString())));
 
-    /*
-     * Command handler for the UseGreetingMessage command.
-     */
-    b.setCommandHandler(UseGreetingMessage.class, (cmd, ctx) ->
-    // In response to this command, we want to first persist it as a
-    // GreetingMessageChanged event
-    ctx.thenPersist(new GreetingMessageChanged(cmd.message),
-        // Then once the event is successfully persisted, we respond with done.
-        evt -> ctx.reply(Done.getInstance())));
-
-    /*
-     * Event handler for the GreetingMessageChanged event.
-     */
-    b.setEventHandler(GreetingMessageChanged.class,
-        // We simply update the current state to use the greeting message from
-        // the event.
-        evt -> new WorldState(evt.message, "No passPhrase", LocalDateTime.now().toString()));
     
-    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    /*
-     * Command handler for the ChangePassPhrase command.
-     */
-    b.setCommandHandler(ChangePassPhraseCommand.class, (cmd, ctx) ->
-    // In response to this command, we want to first persist it as a
-    // PassPhraseChangedEvent
-    ctx.thenPersist(new PassPhraseChangedEvent(cmd.message, cmd.phrase),
-        // Then once the event is successfully persisted, we respond with done.
-        evt -> ctx.reply(Done.getInstance())));
-
-    /*
-     * Event handler for the PassPhraseChangedEvent .
-     */
-    b.setEventHandler(PassPhraseChangedEvent.class,
-        // We simply update the current state to use the greeting message from
-        // the event.
-        evt -> new WorldState(evt.message, evt.phrase, LocalDateTime.now().toString()));
-    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
+    //--------------------------------------------------------------------------
+    //    Hello (Command)
+    //--------------------------------------------------------------------------
     /*
      * Command handler for the Hello command.
      */
@@ -101,7 +66,31 @@ public class ProductWorld extends PersistentEntity<ProductCommand, ProductEvent,
         // Get the greeting from the current state, and prepend it to the name
         // that we're sending
         // a greeting to, and reply with that message.
-        (cmd, ctx) -> ctx.reply(state().message + ", " + cmd.name + "!\nPassPhrase: " + state().passPhrase));
+        (cmd, ctx) -> ctx.reply(state().product.itemName + ", " + cmd.name));
+    
+    //--------------------------------------------------------------------------
+    //    AddProduct (Command)
+    //--------------------------------------------------------------------------
+    /*
+     * Command handler for the ChangePassPhrase command.
+     */
+    b.setCommandHandler(AddProduct.class, (cmd, ctx) ->
+    // In response to this command, we want to first persist it as a
+    // PassPhraseChangedEvent
+    ctx.thenPersist(new ProductAdded(cmd.product.itemId, cmd.product),
+        // Then once the event is successfully persisted, we respond with done.
+        evt -> ctx.reply(Done.getInstance())));
+
+    //--------------------------------------------------------------------------
+    //    ProductAdded (Event)
+    //--------------------------------------------------------------------------
+    /*
+     * Event handler for the PassPhraseChangedEvent .
+     */
+    b.setEventHandler(ProductAdded.class,
+        // We simply update the current state to use the greeting message from
+        // the event.
+        evt -> new WorldState(evt.product, LocalDateTime.now().toString()));
 
     /*
      * We've defined all our behaviour, so build and return it.
