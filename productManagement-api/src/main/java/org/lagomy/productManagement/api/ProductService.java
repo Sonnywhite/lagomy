@@ -31,16 +31,26 @@ public interface ProductService extends Service {
    * Example:
    * http://localhost:9000/api/product/add
    * Content-Type : application/json
-   * {"itemId": "Daniel", "itemName" : "Cake", "itemDescription" : "Choko"}
+   * {"productId": "Daniel", "productName" : "Cake", "sellerName" : "Antonidas", "description" : "Choko", "photoPath" : "path58", "price":42, "sold":false}
    */
   ServiceCall<Product, Done> addProduct();
+  
+  /**
+   * Example: 
+   * http://localhost:9000/api/product/delete/ + productId
+   */
+  ServiceCall<NotUsed, Done> deleteProduct(String productId);
+  
+  /**
+   * Example: http://localhost:9000/api/product/sell/:productId
+   */
+  ServiceCall<NotUsed, Done> markAsSold(String productId);
 
   /**
    * Example:
    * http://localhost:9000/api/product/get/all
    */
   ServiceCall<NotUsed, PSequence<Product>> getAllProducts();
-  //ServiceCall<NotUsed, NotUsed, PSequence<Cargo>> getAllRegistrations();
   
 
   @Override
@@ -49,6 +59,8 @@ public interface ProductService extends Service {
     return named("productService").withCalls(
         pathCall("/api/product/greet/:id",  this::hello),
         pathCall("/api/product/add", this::addProduct),
+        pathCall("/api/product/delete/:productId",  this::deleteProduct),
+        pathCall("/api/product/sell/:productId",  this::markAsSold),
         pathCall("/api/product/get/all", this::getAllProducts)
       ).withAutoAcl(true);
     // @formatter:on
