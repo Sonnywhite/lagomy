@@ -15,6 +15,10 @@ table {
 	margin-right: auto;
 }
 
+td {
+	vertical-align: top;
+}
+
 .centered_box {
 	border: 3px solid;
 	background-color: white;

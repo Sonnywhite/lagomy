@@ -13,24 +13,25 @@
 				<tr>
 					<th>From</th><th>Content</th><th>Date</th><th></th>
 				</tr>
-				<tr>
-					<td>resu</td><td>Hey, I want to buy your bed!</td><td>12.10.2016 20:16</td><td><button>Expand</button></td>
-				</tr>
-				<tr>
-					<td>resu</td><td>Is the bed still available?</td><td>11.10.2016 7:50</td><td><button>Expand</button></td>
-				</tr>
-				<tr>
-					<td>linne123</td><td>Hey man, I just have a question...</td><td>7.10.2016 21:44</td><td><button>Expand</button></td>
-				</tr>
-				<tr>
-					<td>resu</td><td>Thanks!</td><td>16.9.2016 14:00</td><td><button>Expand</button></td>
-				</tr>
-				<tr>
-					<td>linne123</td><td>Please rate me: ...</td><td>16.9.2016 13:48</td><td><button onclick="switchVisibility('row5')">Expand</button></td>
-				</tr>
-				<tr id="row5" class="invis_row">
-					<td><button>Reply</button></td><td>Please rate me: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. <button>Rate linne123</button></td><td></td><td></td>
-				</tr>
+				<?php
+				$messages = getMyMessages("username", "token");
+				$arrLen = count($messages);
+				for($i = 0; $i < $arrLen; $i++) {
+					$content_arr = explode(" ", trim($messages[$i]['content']));
+					if(count($content_arr)>5)	
+						$preview = $content_arr[0]." ".$content_arr[1]." ".$content_arr[2]." ".$content_arr[3]." ".$content_arr[4]." ...";
+					else
+						$preview = $messages[$i]['content'];
+					echo "<tr id='product_row_".$i."'>"
+							."<td>".$messages[$i]['from']."</td>"
+							."<td id='preview_".$i."'>".$preview."</td>"
+							."<td class='invis_row' id='invis_message_row_".$i."'>".$messages[$i]['content']."</td>"
+							."<td>".$messages[$i]['date']."</td>"
+							."<td><button onclick='switchVisibility(&quot;preview_".$i."&quot;,&quot;invis_message_row_".$i."&quot;)'>Expand</button></td>"
+						."</tr>";
+				}
+				
+				?>
 			</table>
 		</div>
 		
