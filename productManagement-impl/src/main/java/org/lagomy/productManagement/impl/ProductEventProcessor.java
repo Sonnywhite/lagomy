@@ -9,6 +9,8 @@ import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
 import com.datastax.driver.core.PreparedStatement;
 
 import org.lagomy.productManagement.impl.ProductEvent.ProductAdded;
+import org.lagomy.productManagement.impl.ProductEvent.ProductDeleted;
+import org.lagomy.productManagement.impl.ProductEvent.ProductMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +34,22 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
     }
 
 
-    private PreparedStatement writeProduct = null; // initialized in prepare
+    private PreparedStatement addProduct = null; // initialized in prepare
+    private PreparedStatement markProduct = null; // initialized in prepare
+    private PreparedStatement deleteProduct = null; // initialized in prepare
     private PreparedStatement writeOffset = null; // initialized in prepare
 
-    private void setWriteProduct(PreparedStatement writeProduct) {
-        this.writeProduct = writeProduct;
+    
+    private void setAddProduct(PreparedStatement addProduct) {
+        this.addProduct = addProduct;
+    }
+
+    private void setMarkProduct(PreparedStatement markProduct) {
+        this.markProduct = markProduct;
+    }
+
+    private void setDeleteProduct(PreparedStatement deleteProduct) {
+        this.deleteProduct = deleteProduct;
     }
 
     private void setWriteOffset(PreparedStatement writeOffset) {
@@ -53,10 +66,12 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
     public CompletionStage<Optional<UUID>> prepare(CassandraSession session) {
         // @formatter:off
         return
-                prepareCreateTables(session).thenCompose(a ->
-                        prepareWriteProduct(session).thenCompose(b ->
-                                prepareWriteOffset(session).thenCompose(c ->
-                                        selectOffset(session))));
+          prepareCreateTables(session).thenCompose(a ->
+          prepareAddProduct(session).thenCompose(b ->
+          prepareMarkProduct(session).thenCompose(c ->
+          prepareDeleteProduct(session).thenCompose(y ->
+          prepareWriteOffset(session).thenCompose(z ->
+                  selectOffset(session))))));
         // @formatter:on
     }
 
@@ -70,12 +85,13 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
         // @formatter:off
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS product ("
-                        + "productId text, name text, description text,"
+                        + "productId text, productName text, sellerName text, "
+                        + "description text, photoPath text, price int, sold boolean,"
                         + "PRIMARY KEY (productId))")
                 .thenCompose(a -> session.executeCreateTable(
-                        "CREATE TABLE IF NOT EXISTS product_offset ("
-                                + "partition int, offset timeuuid, "
-                                + "PRIMARY KEY (partition))"));
+                  "CREATE TABLE IF NOT EXISTS product_offset ("
+                          + "partition int, offset timeuuid, "
+                          + "PRIMARY KEY (partition))"));
         // @formatter:on
     }
 
@@ -85,11 +101,41 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
      * @param session
      * @return
      */
-    private CompletionStage<Done> prepareWriteProduct(CassandraSession session) {
+    private CompletionStage<Done> prepareAddProduct(CassandraSession session) {
         return session.prepare(
-            "INSERT INTO product (productId, name, description)"
-            + " VALUES (?,?,?)").thenApply(ps -> {
-            setWriteProduct(ps);
+            "INSERT INTO product (productId, productName, sellerName, description, photoPath, price, sold)"
+            + " VALUES (?,?,?,?,?,?,?)").thenApply(ps -> {
+            setAddProduct(ps);
+            return Done.getInstance();
+        });
+    }
+
+    /** --------------------------- prepareMarkProduct ---------------------------
+     * prepared statement for marking a Product object as sold
+     *
+     * @param session
+     * @return
+     */
+    private CompletionStage<Done> prepareMarkProduct(CassandraSession session) {
+        return session.prepare(
+            "UPDATE product SET sold=true"
+            + " WHERE productId=?").thenApply(ps -> {
+            setMarkProduct(ps);
+            return Done.getInstance();
+        });
+    }
+
+    /** --------------------------- prepareDeleteProduct ---------------------------
+     * prepared statement for deleting a Product object
+     *
+     * @param session
+     * @return
+     */
+    private CompletionStage<Done> prepareDeleteProduct(CassandraSession session) {
+        return session.prepare(
+            "DELETE FROM product WHERE"
+            + " productId=?").thenApply(ps -> {
+            setDeleteProduct(ps);
             return Done.getInstance();
         });
     }
@@ -101,7 +147,8 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
      * @return
      */
     private CompletionStage<Done> prepareWriteOffset(CassandraSession session) {
-        return session.prepare("INSERT INTO product_offset (partition, offset) VALUES (1, ?)").thenApply(ps -> {
+        return session.prepare("INSERT INTO product_offset (partition, offset) VALUES (1, ?)")
+            .thenApply(ps -> {
             setWriteOffset(ps);
             return Done.getInstance();
         });
@@ -120,32 +167,68 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
     }
 
     /** --------------------------- defineEventHandlers ---------------------------
-     * Bind the read side persistence to the ProductRegistered event
+     * Bind the read side persistence to the ProductAdded event
      *
      * @param builder
      * @return
      */
     @Override
     public EventHandlers defineEventHandlers(EventHandlersBuilder builder) {
-        builder.setEventHandler(ProductAdded.class, this::processProductRegistered);
+        builder.setEventHandler(ProductAdded.class, this::processProductAdded);
+        builder.setEventHandler(ProductMarked.class, this::processProductMarked);
+        builder.setEventHandler(ProductDeleted.class, this::processProductDeleted);
         return builder.build();
     }
 
-    /** --------------------------- processProductRegistered ---------------------------
+    /** --------------------------- processProductAdded ---------------------------
      * Write a persistent event into the read-side optimized database.
      *
      * @param @link{ProductRegistered}
      * @param offset
      * @return
      */
-    private CompletionStage<List<BoundStatement>> processProductRegistered(ProductAdded event, UUID offset) {
-        BoundStatement bindWriteProduct = writeProduct.bind();
-        bindWriteProduct.setString("productId", event.product.itemId);
-        bindWriteProduct.setString("name", event.product.itemName);
-        bindWriteProduct.setString("description", event.product.itemDescription);
+    private CompletionStage<List<BoundStatement>> processProductAdded(ProductAdded event, UUID offset) {
+        BoundStatement bindAddProduct = addProduct.bind();
+        bindAddProduct.setString("productId", event.product.productId);
+        bindAddProduct.setString("productName", event.product.productName);
+        bindAddProduct.setString("sellerName", event.product.sellerName);
+        bindAddProduct.setString("description", event.product.description);
+        bindAddProduct.setString("photoPath", event.product.photoPath);
+        bindAddProduct.setInt("price", event.product.price);
+        bindAddProduct.setBool("sold", event.product.sold);
         BoundStatement bindWriteOffset = writeOffset.bind(offset);
-        log.info("Persisted {}", event.product.itemId);
-        return completedStatements(Arrays.asList(bindWriteProduct, bindWriteOffset));
+        log.info("Persisted {}", event.product.productId);
+        return completedStatements(Arrays.asList(bindAddProduct, bindWriteOffset));
+    }
+
+    /** --------------------------- processProductDeleted ---------------------------
+     * Write a persistent event into the read-side optimized database.
+     *
+     * @param @link{ProductRegistered}
+     * @param offset
+     * @return
+     */
+    private CompletionStage<List<BoundStatement>> processProductMarked(ProductMarked event, UUID offset) {
+        BoundStatement bindMarkProduct = markProduct.bind();
+        bindMarkProduct.setString("productId", event.productId);
+        BoundStatement bindWriteOffset = writeOffset.bind(offset);
+        log.info("Persisted {}", event.productId);
+        return completedStatements(Arrays.asList(bindMarkProduct, bindWriteOffset));
+    }
+
+    /** --------------------------- processProductDeleted ---------------------------
+     * Write a persistent event into the read-side optimized database.
+     *
+     * @param @link{ProductRegistered}
+     * @param offset
+     * @return
+     */
+    private CompletionStage<List<BoundStatement>> processProductDeleted(ProductDeleted event, UUID offset) {
+        BoundStatement bindDeleteProduct = deleteProduct.bind();
+        bindDeleteProduct.setString("productId", event.productId);
+        BoundStatement bindWriteOffset = writeOffset.bind(offset);
+        log.info("Persisted {}", event.productId);
+        return completedStatements(Arrays.asList(bindDeleteProduct, bindWriteOffset));
     }
 
 }

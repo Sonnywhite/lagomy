@@ -32,7 +32,11 @@ public class ProductServiceImpl implements ProductService {
 
   private final PersistentEntityRegistry persistentEntityRegistry;
   private final CassandraSession db;
-
+  
+  
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //    Constructor
+  //-----------------------------------------------------------------------------------------------------------------------------
   @Inject
   public ProductServiceImpl(PersistentEntityRegistry persistentEntityRegistry, 
       CassandraReadSide readSide, CassandraSession db) {
@@ -45,52 +49,88 @@ public class ProductServiceImpl implements ProductService {
     
   }
   
-
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //    hello
+  //-----------------------------------------------------------------------------------------------------------------------------
   @Override
   public ServiceCall<NotUsed, String> hello(String id) {
     return request -> {
-      // Look up the hello world entity for the given ID.
+      // Look up the entity for the given ID.
       PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, id);
       // Ask the entity the Hello command.
       return ref.ask(new Hello("<<" + id + ">>", Optional.empty()));
     };
   }
 
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //    addProduct
+  //-----------------------------------------------------------------------------------------------------------------------------
+  @Override
+  public ServiceCall<Product, Done> addProduct() {
 
-    @Override
-    public ServiceCall<Product, Done> addProduct() {
+    return product -> {
+      
+      // Look up the entity for the given ID.
+      PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, product.productId);
+      // Tell the entity to add the product
+      return ref.ask(new AddProduct(product));
+      
+    };
+      
+  }
+  
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //    getAllProducts
+  //-----------------------------------------------------------------------------------------------------------------------------   
+  @Override
+  public ServiceCall<NotUsed, PSequence<Product>> getAllProducts() {
+      return (req) -> {
+          CompletionStage<PSequence<Product>> result = 
+              db.selectAll("SELECT * FROM product") //productId, productName, sellerName, description, photoPath, price, sold 
+                  .thenApply(rows -> {
+                      List<Product> productList = rows.stream().map(row -> 
+                      new Product(row.getString("productId"),
+                          row.getString("productName"),
+                          row.getString("sellerName"),
+                          row.getString("description"),
+                          row.getString("photoPath"),
+                          row.getInt("price"),
+                          row.getBool("sold")
+                          )).collect(Collectors.toList());
+                      return TreePVector.from(productList);
+                  });
+          return result;
+      };
+  }
 
-        return product -> {
-          
-          // Look up the hello world entity for the given ID.
-          PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, product.itemId);
-          
-          // Tell the entity to use the greeting message specified.
-          return ref.ask(new AddProduct(product));
-          
-        };
-        
-    }
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //    deleteProduct
+  //-----------------------------------------------------------------------------------------------------------------------------
+  @Override
+  public ServiceCall<NotUsed, Done> deleteProduct(String productId) {
+
+    return product -> {
+      // Look up the entity for the given ID.
+      PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, productId);
+      // Tell the entity to delete the product
+      return ref.ask(new DeleteProduct(productId));
+    };
     
+  }
+
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //    markAsSold
+  //-----------------------------------------------------------------------------------------------------------------------------
+  @Override
+  public ServiceCall<NotUsed, Done> markAsSold(String productId) {
+
+    return product -> {
+      // Look up the entity for the given ID.
+      PersistentEntityRef<ProductCommand> ref = persistentEntityRegistry.refFor(ProductWorld.class, productId);
+      // Tell the entity to mark the product
+      return ref.ask(new MarkProduct(productId));
+    };
     
-    /**
-     * Get all added Products
-     *
-     * @return
-     */
-    @Override
-    public ServiceCall<NotUsed, PSequence<Product>> getAllProducts() {
-        return (req) -> {
-            CompletionStage<PSequence<Product>> result = 
-                db.selectAll("SELECT productId, name, description FROM product")
-                    .thenApply(rows -> {
-                        List<Product> productList = rows.stream().map(row -> new Product(row.getString("productId"),
-                                row.getString("name"),
-                                row.getString("description"))).collect(Collectors.toList());
-                        return TreePVector.from(productList);
-                    });
-            return result;
-        };
-    }
+  }
 
 }

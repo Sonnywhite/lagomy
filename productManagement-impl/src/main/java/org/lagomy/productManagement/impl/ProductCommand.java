@@ -50,13 +50,7 @@ public interface ProductCommand extends Jsonable {
 
     @JsonCreator
     public AddProduct(Product product) {
-      
       this.product = Preconditions.checkNotNull(product, "product");
-      
-//        this.itemID = Preconditions.checkNotNull(itemID, "itemID");
-//        this.itemName = Preconditions.checkNotNull(itemName, "itemName");
-//        this.itemDescription = Preconditions.checkNotNull(itemDescription, "itemDescription");
-      
     }
 
     @Override
@@ -84,6 +78,100 @@ public interface ProductCommand extends Jsonable {
     }
     
   }
+
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //            DeleteProduct (Command)
+  //-----------------------------------------------------------------------------------------------------------------------------
+  /**
+   * A command to delete a product
+   * <p>
+   * It has a reply type of {@link akka.Done}, which is sent back to the caller
+   * when all the events emitted by this command are successfully persisted.
+   */
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class DeleteProduct implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+    
+    public final String productId;
+
+    @JsonCreator
+    public DeleteProduct(String productId) {
+      this.productId = Preconditions.checkNotNull(productId, "productId");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof DeleteProduct && equalTo((DeleteProduct) another);
+    }
+
+    private boolean equalTo(DeleteProduct another) {
+      return productId.equals(another.productId);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + productId.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("DeleteProductCommand").add("product", productId).toString();
+    }
+    
+  }
+
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //            MarkProduct (Command)
+  //-----------------------------------------------------------------------------------------------------------------------------
+  /**
+   * A command to mark a product as sold
+   * <p>
+   * It has a reply type of {@link akka.Done}, which is sent back to the caller
+   * when all the events emitted by this command are successfully persisted.
+   */
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class MarkProduct implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+    
+    public final String productId;
+
+    @JsonCreator
+    public MarkProduct(String productId) {
+      this.productId = Preconditions.checkNotNull(productId, "productId");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof MarkProduct && equalTo((MarkProduct) another);
+    }
+
+    private boolean equalTo(MarkProduct another) {
+      return productId.equals(another.productId);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + productId.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("MarkProductCommand").add("product", productId).toString();
+    }
+    
+  }
+ 
+ 
   
   
 //-----------------------------------------------------------------------------------------------------------------------------
