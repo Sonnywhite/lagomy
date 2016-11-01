@@ -16,6 +16,7 @@ public interface MessageService extends Service {
 
     ServiceCall<Message, Done> sendMessage(String receiver, String token);
     ServiceCall<NotUsed, PSequence<Message>> getAllMessages(String owner, String token);
+    ServiceCall<NotUsed, Message> getMessage(String sender);
    // ServiceCall<NotUsed, Messages> getMessagesByUsername(String owner,String sender);
     //ServiceCall<RateMessage, Done> invokeRating(String receiver);
 
@@ -23,7 +24,8 @@ public interface MessageService extends Service {
     default Descriptor descriptor() {
         return named("messages").withCalls(
                 pathCall("/messages/:username/:token", this::sendMessage),
-                pathCall("/messages/:username/:token", this::getAllMessages)
+                pathCall("/messages/:username/:token", this::getAllMessages),
+                pathCall("/messages/:sender", this::getMessage)
                 //pathCall("/messages/:username/:username", this::getMessagesByUsername)
                 //pathCall( "/messages/:username", this::invokeRating)
         ).withAutoAcl(true);
