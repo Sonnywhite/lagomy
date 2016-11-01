@@ -8,6 +8,8 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import org.lagomy.productManagement.api.Product;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
@@ -27,8 +29,11 @@ import akka.Done;
  */
 public interface ProductCommand extends Jsonable {
 
+//-----------------------------------------------------------------------------------------------------------------------------
+//            AddProduct (Command)
+//-----------------------------------------------------------------------------------------------------------------------------
   /**
-   * A command to switch the greeting message.
+   * A command to add a product
    * <p>
    * It has a reply type of {@link akka.Done}, which is sent back to the caller
    * when all the events emitted by this command are successfully persisted.
@@ -36,82 +41,142 @@ public interface ProductCommand extends Jsonable {
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
-  public final class UseGreetingMessage implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
-    public final String message;
+  public final class AddProduct implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+        
+//    public final String itemID;
+//    public final String itemName;
+//    public final String itemDescription;
+    public final Product product;
 
     @JsonCreator
-    public UseGreetingMessage(String message) {
-      this.message = Preconditions.checkNotNull(message, "message");
+    public AddProduct(Product product) {
+      this.product = Preconditions.checkNotNull(product, "product");
     }
 
     @Override
     public boolean equals(@Nullable Object another) {
       if (this == another)
         return true;
-      return another instanceof UseGreetingMessage && equalTo((UseGreetingMessage) another);
+      return another instanceof AddProduct && equalTo((AddProduct) another);
     }
 
-    private boolean equalTo(UseGreetingMessage another) {
-      return message.equals(another.message);
-    }
-
-    @Override
-    public int hashCode() {
-      int h = 31;
-      h = h * 17 + message.hashCode();
-      return h;
-    }
-
-    @Override
-    public String toString() {
-      return MoreObjects.toStringHelper("UseGreetingMessage").add("message", message).toString();
-    }
-  }
-
-  /**
-   * A command to switch the pass phrase.
-   * <p>
-   * It has a reply type of {@link akka.Done}, which is sent back to the caller
-   * when all the events emitted by this command are successfully persisted.
-   */
-  @SuppressWarnings("serial")
-  @Immutable
-  @JsonDeserialize
-  public final class ChangePassPhraseCommand implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
-    public final String message;
-    public final String phrase;
-
-    @JsonCreator
-    public ChangePassPhraseCommand(String message, String phrase) {
-        this.message = Preconditions.checkNotNull(message, "message");
-        this.phrase = Preconditions.checkNotNull(phrase, "phrase");
-    }
-
-    @Override
-    public boolean equals(@Nullable Object another) {
-      if (this == another)
-        return true;
-      return another instanceof ChangePassPhraseCommand && equalTo((ChangePassPhraseCommand) another);
-    }
-
-    private boolean equalTo(ChangePassPhraseCommand another) {
+    private boolean equalTo(AddProduct another) {
         //TODO: update equal etc
-      return message.equals(another.message);
+      return product.equals(another.product);
     }
 
     @Override
     public int hashCode() {
       int h = 31;
-      h = h * 17 + message.hashCode();
+      h = h * 17 + product.hashCode();
       return h;
     }
 
     @Override
     public String toString() {
-      return MoreObjects.toStringHelper("UseGreetingMessage").add("message", message).toString();
+      return MoreObjects.toStringHelper("AddProductCommand").add("product", product).toString();
     }
+    
   }
 
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //            DeleteProduct (Command)
+  //-----------------------------------------------------------------------------------------------------------------------------
+  /**
+   * A command to delete a product
+   * <p>
+   * It has a reply type of {@link akka.Done}, which is sent back to the caller
+   * when all the events emitted by this command are successfully persisted.
+   */
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class DeleteProduct implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+    
+    public final String productId;
+
+    @JsonCreator
+    public DeleteProduct(String productId) {
+      this.productId = Preconditions.checkNotNull(productId, "productId");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof DeleteProduct && equalTo((DeleteProduct) another);
+    }
+
+    private boolean equalTo(DeleteProduct another) {
+      return productId.equals(another.productId);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + productId.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("DeleteProductCommand").add("product", productId).toString();
+    }
+    
+  }
+
+  //-----------------------------------------------------------------------------------------------------------------------------
+  //            MarkProduct (Command)
+  //-----------------------------------------------------------------------------------------------------------------------------
+  /**
+   * A command to mark a product as sold
+   * <p>
+   * It has a reply type of {@link akka.Done}, which is sent back to the caller
+   * when all the events emitted by this command are successfully persisted.
+   */
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class MarkProduct implements ProductCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+    
+    public final String productId;
+
+    @JsonCreator
+    public MarkProduct(String productId) {
+      this.productId = Preconditions.checkNotNull(productId, "productId");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof MarkProduct && equalTo((MarkProduct) another);
+    }
+
+    private boolean equalTo(MarkProduct another) {
+      return productId.equals(another.productId);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + productId.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("MarkProductCommand").add("product", productId).toString();
+    }
+    
+  }
+ 
+ 
+  
+  
+//-----------------------------------------------------------------------------------------------------------------------------
+//          Hello (Command)
+//-----------------------------------------------------------------------------------------------------------------------------
   /**
    * A command to say hello to someone using the current greeting message.
    * <p>

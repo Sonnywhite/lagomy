@@ -6,6 +6,8 @@ package org.lagomy.productManagement.api;
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.pathCall;
 
+import org.pcollections.PSequence;
+
 import akka.Done;
 import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.Descriptor;
@@ -21,30 +23,45 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
 public interface ProductService extends Service {
 
   /**
-   * Example: curl http://localhost:9000/api/hello/Alice
+   * Example: http://localhost:9000/api/product/greet/Daniel
    */
   ServiceCall<NotUsed, String> hello(String id);
 
   /**
-   * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
-   * "Hi"}' http://localhost:9000/api/hello/Alice
+   * Example:
+   * http://localhost:9000/api/product/add
+   * Content-Type : application/json
+   * {"productId": "Daniel", "productName" : "Cake", "sellerName" : "Antonidas", "description" : "Choko", "photoPath" : "path58", "price":42, "sold":false}
    */
-  ServiceCall<TheMessage, Done> useGreeting(String id);
+  ServiceCall<Product, Done> addProduct();
+  
+  /**
+   * Example: 
+   * http://localhost:9000/api/product/delete/ + productId
+   */
+  ServiceCall<NotUsed, Done> deleteProduct(String productId);
+  
+  /**
+   * Example: http://localhost:9000/api/product/sell/:productId
+   */
+  ServiceCall<NotUsed, Done> markAsSold(String productId);
 
   /**
-   * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
-   * "Hi"}' http://localhost:9000/api/hello/Alice
+   * Example:
+   * http://localhost:9000/api/product/get/all
    */
-  ServiceCall<ProductData, Done> usePassPhrase(String id);
+  ServiceCall<NotUsed, PSequence<Product>> getAllProducts();
   
 
   @Override
   default Descriptor descriptor() {
     // @formatter:off
     return named("productService").withCalls(
-        pathCall("/api/product/:id",  this::hello),
-        pathCall("/api/product/:id", this::useGreeting),
-        pathCall("/api/product/pass/:id", this::usePassPhrase)
+        pathCall("/api/product/greet/:id",  this::hello),
+        pathCall("/api/product/add", this::addProduct),
+        pathCall("/api/product/delete/:productId",  this::deleteProduct),
+        pathCall("/api/product/sell/:productId",  this::markAsSold),
+        pathCall("/api/product/get/all", this::getAllProducts)
       ).withAutoAcl(true);
     // @formatter:on
   }
