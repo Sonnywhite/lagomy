@@ -87,7 +87,7 @@ lazy val ratingImpl = project("rating-impl")
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(ratingApi, userManagementApi, productManagmentApi)
+  .dependsOn(ratingApi)
 
 lazy val messagingApi = project("messaging-api")
   .settings(
