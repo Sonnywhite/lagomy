@@ -1,42 +1,52 @@
+/*
+ * Copyright (C) 2016 Lightbend Inc. <http://www.lightbend.com>
+ */
 package org.lagomy.message.impl;
 
 import akka.Done;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import org.lagomy.message.api.Message;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * Created by Seva Meyer on 2016-10-18.
- */
 public class MessageEntity extends PersistentEntity<MessageCommand, MessageEvent, MessageState> {
 
     @Override
     public Behavior initialBehavior(Optional<MessageState> snapshotState) {
 
         BehaviorBuilder b = newBehaviorBuilder(snapshotState.orElse(
-                new MessageState()));
+                new MessageState(new Message("","","",""), LocalDateTime.now().toString())
+        ));
+      /*MessageState.builder().message(Message.builder()
+            .id("")
+            .sender("")
+            .message("")
+            .receiver("").build())
+            .timestamp(LocalDateTime.now()).build()));*/
 
-//        b.setCommandHandler(MessageCommand.SendMessage.class, (cmd, ctx) -> {
-//            if (state().message.isPresent()) {
-//                ctx.invalidCommand("Message " + entityId() + " is already created");
-//                return ctx.done();
-//            } else {
-//                Message message = cmd.message;
-//                List<MessageEvent> events = new ArrayList<MessageEvent>();
-//                events.add(new MessageEvent.MessageSent(message.source, message.message,message.receiver));
-////                for (String friendId : user.friends) {
-////                    events.add(new FriendAdded(user.userId, friendId));
-////                }
-//                return ctx.thenPersistAll(events, () -> ctx.reply(Done.getInstance()));
-//            }
-//        });
-//
-//        b.setEventHandler(MessageEvent.MessageSent.class,
-//                evt -> new MessageState(Optional.of(new Message(evt.source, evt.message, evt.receiver))));
+        b.setCommandHandler(MessageCommand.SendMessage.class, (cmd, ctx) -> {
+     /* if (state().message.isPresent()) {
+        ctx.invalidCommand("User " + entityId() + " is already created");
+        return ctx.done();
+      } else {*/
 
+            final MessageEvent.MessageCreated messageCreated =
+                    new MessageEvent.MessageCreated(cmd.message.messageId, cmd.message);
+            return ctx.thenPersist(messageCreated, ect -> ctx.reply(Done.getInstance()));
+
+//        Message message = cmd.message;
+//        List<MessageEvent> events = new ArrayList<MessageEvent>();
+//        events.add(new MessageEvent.MessageCreated(message.sender, message.message, message.receiver) );
+//        return ctx.thenPersistAll(events, () -> ctx.reply(Done.getInstance()));
+            //  }
+        });
+
+        b.setEventHandler(MessageEvent.MessageCreated.class,
+                evt -> new MessageState(evt.message, LocalDateTime.now().toString()));
+      /*state()
+              .withMessage(evt.getMessage())
+              .withTimestamp(LocalDateTime.now()))*/;//
 //    b.setCommandHandler(AddFriend.class, (cmd, ctx) -> {
 //      if (!state().user.isPresent()) {
 //        ctx.invalidCommand("User " + entityId() + " is not  created");
@@ -50,14 +60,19 @@ public class MessageEntity extends PersistentEntity<MessageCommand, MessageEvent
 //      }
 //    });
 
+//    b.setEventHandler(FriendAdded.class, evt -> state().addFriend(evt.friendId));
 
-        b.setReadOnlyCommandHandler(org.lagomy.message.impl.MessageCommand.GetMessage.class, (cmd, ctx) -> {
-            ctx.reply(new org.lagomy.message.impl.MessageCommand.GetMessageReply(state().message));
-        });
+//    b.setReadOnlyCommandHandler(MessageCommand.GetMessage.class, (cmd, ctx) -> {
+//      ctx.reply(new MessageCommand.GetMessageReply(state().message));
+//    });
 
       /*b.setReadOnlyCommandHandler(MessageCommand.GetAllMessages.class, (cmd, ctx) -> {
           ctx.reply(new MessageCommand.GetMessageList(state().message));
       });*/
         return b.build();
     }
+
+ /* private String getUserId() {
+    return state().message.get().sender;
+  }*/
 }

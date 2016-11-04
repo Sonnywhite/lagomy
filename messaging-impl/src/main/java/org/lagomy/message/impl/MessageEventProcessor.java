@@ -34,38 +34,23 @@ public class MessageEventProcessor extends CassandraReadSideProcessor<MessageEve
         return MessageEventTag.INSTANCE;
     }
 
+
+
     @Override
     public CompletionStage<Optional<UUID>> prepare(CassandraSession session) {
-        // @formatter:off
         return
                 prepareCreateTables(session).thenCompose(a ->
-                        prepareWriteMessages(session).thenCompose(b ->
+                        prepareWriteMessage(session).thenCompose(b ->
                                 prepareWriteOffset(session).thenCompose(c ->
                                         selectOffset(session))));
-        // @formatter:on
     }
 
-
-    private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
-        // @formatter:off
-        return session.executeCreateTable(
-                "CREATE TABLE IF NOT EXISTS messages ("
-                        + "messageId text, sender text, message text, receiver text, "
-                        + "PRIMARY KEY (messageId))")
-                .thenCompose(a -> session.executeCreateTable(
-                        "CREATE TABLE IF NOT EXISTS message_offset ("
-                                + "partition int, offset timeuuid, "
-                                + "PRIMARY KEY (partition))"));
-        // @formatter:on
-    }
-
-    private CompletionStage<Done> prepareWriteMessages(CassandraSession session) {
-        return session.prepare("INSERT INTO messages (messageId, sender, message, receiver) VALUES (?, ?, ?, ?)").thenApply(ps -> {
-            setWriteMessages(ps);
-            return Done.getInstance();
-        });
-    }
-
+    /**
+     * Prepared statement for the persistence offset
+     *
+     * @param session
+     * @return
+     */
     private CompletionStage<Done> prepareWriteOffset(CassandraSession session) {
         return session.prepare("INSERT INTO message_offset (partition, offset) VALUES (1, ?)").thenApply(ps -> {
             setWriteOffset(ps);
@@ -73,26 +58,72 @@ public class MessageEventProcessor extends CassandraReadSideProcessor<MessageEve
         });
     }
 
+    /**
+     * Find persistence offset
+     *
+     * @param session
+     * @return
+     */
     private CompletionStage<Optional<UUID>> selectOffset(CassandraSession session) {
-        return session.selectOne("SELECT offset FROM message_offset WHERE partition=1")
+        return session.selectOne("SELECT offset FROM message_offset")
                 .thenApply(
                         optionalRow -> optionalRow.map(r -> r.getUUID("offset")));
     }
 
+
+
+    private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
+        return session.executeCreateTable(
+                "CREATE TABLE IF NOT EXISTS messages ("
+                        + "messageId text, sender text, message text,"
+                        + "receiver text, "
+                        + "PRIMARY KEY (messageId))")
+                .thenCompose(a -> session.executeCreateTable(
+                        "CREATE TABLE IF NOT EXISTS message_offset ("
+                                + "partition int, offset timeuuid, "
+                                + "PRIMARY KEY (partition))"));
+    }
+
+
+    private CompletionStage<Done> prepareWriteMessage(CassandraSession session) {
+        return session
+                .prepare("INSERT INTO messages"
+                        + "(messageId, sender, message, "
+                        + "receiver ) VALUES (?, ?,?,?)")
+                .thenApply(ps -> {
+                    setWriteMessages(ps);
+                    return Done.getInstance();
+                });
+    }
+
     @Override
     public EventHandlers defineEventHandlers(EventHandlersBuilder builder) {
-        builder.setEventHandler(MessageEvent.MessageCreated.class, this::processMessageChanged);
+        builder.setEventHandler(MessageEvent.MessageCreated.class,
+                this::processMessageCreated);
         return builder.build();
     }
 
-    private CompletionStage<List<BoundStatement>> processMessageChanged(MessageEvent.MessageCreated event, UUID offset) {
-        BoundStatement bindWriteMessages = writeMessages.bind();
-        bindWriteMessages.setString("sender", event.sender);
-        bindWriteMessages.setString("message", event.message);
-        bindWriteMessages.setString("receiver", event.receiver);
-        BoundStatement bindWriteOffset = writeOffset.bind(offset);
-        return completedStatements(Arrays.asList(bindWriteMessages, bindWriteOffset));
+    private CompletionStage<List<BoundStatement>>  processMessageCreated(org.lagomy.message.impl.MessageEvent.MessageCreated event, UUID offset) {
+// bind the prepared statement
+        BoundStatement bindWriteMessage = writeMessages.bind();
+// insert values into prepared statement
+        bindWriteMessage.setString("messageId",
+                event.message.messageId);
+        bindWriteMessage.setString("sender",
+                event.message.sender);
+        bindWriteMessage.setString("message",
+                event.message.message);
+        bindWriteMessage.setString("receiver",
+                event.message.receiver);
+
+// bind the offset prepared statement
+        BoundStatement bindWriteOffset =
+                writeOffset.bind(offset);
+        return completedStatements(
+                Arrays.asList(bindWriteMessage,
+                        bindWriteOffset));
     }
+
 
 
 

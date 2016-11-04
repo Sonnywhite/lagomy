@@ -13,8 +13,10 @@ import com.google.common.base.Preconditions;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
 import com.lightbend.lagom.serialization.Jsonable;
+import org.lagomy.message.api.Message;
 
 public interface MessageEvent extends Jsonable, AggregateEvent<MessageEvent> {
+
 
     @Override
     default public AggregateEventTag<MessageEvent> aggregateTag() {
@@ -24,16 +26,25 @@ public interface MessageEvent extends Jsonable, AggregateEvent<MessageEvent> {
     @SuppressWarnings("serial")
     @Immutable
     @JsonDeserialize
-    public class MessageCreated implements MessageEvent {
-        public final String sender;
-        public final String message;
-        public final String receiver;
+    public final class MessageCreated implements MessageEvent {
+
+        public final String messageId;
+        public final Message message;
+
+
+
+    /*  @Value.Parameter
+      String getMessageId();
+
+      @Value.Parameter
+      Message getMessage();*/
+//    public final String sender;
+//    public final String message;
 
         @JsonCreator
-        public MessageCreated(String sender, String message, String receiver) {
-            this.sender = Preconditions.checkNotNull(sender, "sender");
+        public MessageCreated(String messageId, Message message) {
+            this.messageId = Preconditions.checkNotNull(messageId, "messageId");
             this.message = Preconditions.checkNotNull(message, "message");
-            this.receiver = Preconditions.checkNotNull(receiver, "receiver");
         }
 
         @Override
@@ -44,23 +55,19 @@ public interface MessageEvent extends Jsonable, AggregateEvent<MessageEvent> {
         }
 
         private boolean equalTo(MessageCreated another) {
-            return sender.equals(another.sender) && message.equals(another.message) && receiver.equals(another.receiver);
+            return message.equals(another);
         }
 
         @Override
         public int hashCode() {
             int h = 31;
-            h = h * 17 + sender.hashCode();
             h = h * 17 + message.hashCode();
-            h = h * 17 + receiver.hashCode();
             return h;
         }
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper("MessageCreated").add("userId", sender)
-                    .add("name", message)
-                    .add("receiver", receiver).toString();
+            return MoreObjects.toStringHelper("MessageCreated").add("message", message).toString();
         }
     }
 }

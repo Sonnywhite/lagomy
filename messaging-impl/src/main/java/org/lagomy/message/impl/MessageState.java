@@ -12,26 +12,21 @@ import org.lagomy.message.api.Message;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
 
 @SuppressWarnings("serial")
 @Immutable
 @JsonDeserialize
 public final class MessageState implements Jsonable {
 
-    public final Optional<Message> message;
+    public final Message message;
+    public final String timestamp;
 
     @JsonCreator
-    public MessageState(Optional<Message> message) {
+    public MessageState(Message message, String timestamp) {
         this.message = Preconditions.checkNotNull(message, "message");
-    }
+        this.timestamp = Preconditions.checkNotNull(timestamp, "timestamp");
 
-//  public FriendState addFriend(String friendUserId) {
-//    if (!user.isPresent())
-//      throw new IllegalStateException("friend can't be added before user is created");
-//    PSequence<String> newFriends = user.get().friends.plus(friendUserId);
-//    return new FriendState(Optional.of(new User(user.get().userId, user.get().name, Optional.of(newFriends))));
-//  }
+    }
 
     @Override
     public boolean equals(@Nullable Object another) {
@@ -48,11 +43,12 @@ public final class MessageState implements Jsonable {
     public int hashCode() {
         int h = 31;
         h = h * 17 + message.hashCode();
+        h = h * 17 + timestamp.hashCode();
         return h;
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper("MessageState").add("message", message).toString();
+        return MoreObjects.toStringHelper("MessageState").add("message", message).add("timestamp", timestamp).toString();
     }
 }
