@@ -33,6 +33,7 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
         return ProductEventTag.INSTANCE;
     }
 
+    private static int nextFreeId = 1;
 
     private PreparedStatement addProduct = null; // initialized in prepare
     private PreparedStatement markProduct = null; // initialized in prepare
@@ -189,7 +190,7 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
      */
     private CompletionStage<List<BoundStatement>> processProductAdded(ProductAdded event, UUID offset) {
         BoundStatement bindAddProduct = addProduct.bind();
-        bindAddProduct.setString("productId", event.product.productId);
+        bindAddProduct.setString("productId", assignNextId());
         bindAddProduct.setString("productName", event.product.productName);
         bindAddProduct.setString("sellerName", event.product.sellerName);
         bindAddProduct.setString("description", event.product.description);
@@ -197,8 +198,13 @@ public class ProductEventProcessor extends CassandraReadSideProcessor<ProductEve
         bindAddProduct.setInt("price", event.product.price);
         bindAddProduct.setBool("sold", event.product.sold);
         BoundStatement bindWriteOffset = writeOffset.bind(offset);
-        log.info("Persisted {}", event.product.productId);
+        log.info("Persisted {}", event.product.productName);
         return completedStatements(Arrays.asList(bindAddProduct, bindWriteOffset));
+    }
+    
+    private synchronized String assignNextId(){
+      nextFreeId++;
+      return String.valueOf(nextFreeId - 1);
     }
 
     /** --------------------------- processProductDeleted ---------------------------
