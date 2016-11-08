@@ -24,31 +24,28 @@ public class RatingWorld extends PersistentEntity<RatingCommand, RatingEvent, Ra
     BehaviorBuilder b = newBehaviorBuilder(
         snapshotState.orElse(new RatingState(0,0)));
 
-    /*
-     * Command handler for the UseGreetingMessage command.
-     */
+    //--------------------------------------------------------------------------
+    //    RateSeller (Command)
+    //--------------------------------------------------------------------------
     b.setCommandHandler(RateSeller.class, (cmd, ctx) ->
-    // In response to this command, we want to first persist it as a
-    // GreetingMessageChanged event
-    ctx.thenPersist(new SellerRated(cmd.newRating),
+        // In response to this command, we want to first persist it as a
+        // GreetingMessageChanged event
+        ctx.thenPersist(new SellerRated(cmd.newRating),
         // Then once the event is successfully persisted, we respond with done.
         evt -> ctx.reply(Done.getInstance())));
 
-    /*
-     * Event handler for the GreetingMessageChanged event.
-     */
+    //--------------------------------------------------------------------------
+    //    SellerRated (Event)
+    //--------------------------------------------------------------------------
     b.setEventHandler(SellerRated.class,
         // We simply update the current state to use the greeting message from
         // the event.
         evt -> state().withAddedNewRating(evt.newRating));
 
-    /*
-     * Command handler for the Hello command.
-     */
+    //--------------------------------------------------------------------------
+    //    GetRating (Command)
+    //--------------------------------------------------------------------------
     b.setReadOnlyCommandHandler(GetRating.class,
-        // Get the greeting from the current state, and prepend it to the name
-        // that we're sending
-        // a greeting to, and reply with that message.
         (cmd, ctx) -> ctx.reply(cmd.sellerName + ": " + state().getRating()));
 
     /*
