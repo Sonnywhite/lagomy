@@ -6,7 +6,8 @@ function getAllProducts() {
 	// TODO: connect to microservice
 	// TODO: prepare response	
 	
-	$url = "http://localhost:9000/api/hello/World";
+	$url2 = "http://localhost:9000/api/hello/World";
+	$url = "http://localhost:9000/api/product/get/all";
 	$curl = curl_init();
 	
 	curl_setopt($curl, CURLOPT_URL, $url);
