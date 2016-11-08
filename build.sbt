@@ -3,43 +3,16 @@ organization in ThisBuild := "sample.helloworld"
 // the Scala version that will be used for cross-compiled libraries
 scalaVersion in ThisBuild := "2.11.8"
 
-lazy val helloworldApi = project("helloworld-api")
-  .settings(
-    version := "1.0-SNAPSHOT",
-    libraryDependencies += lagomJavadslApi
-  )
 
-lazy val helloworldImpl = project("helloworld-impl")
-  .enablePlugins(LagomJava)
-  .settings(
-    version := "1.0-SNAPSHOT",
-    libraryDependencies ++= Seq(
-      lagomJavadslPersistence,
-      lagomJavadslTestKit
-    )
-  )
-  .settings(lagomForkedTestSettings: _*)
-  .dependsOn(helloworldApi)
+//------ userManagementApi ------------------------------------
 
-lazy val hellostreamApi = project("hellostream-api")
-  .settings(version := "1.0-SNAPSHOT")
-  .settings(
-    libraryDependencies += lagomJavadslApi
-  )
-
-lazy val hellostreamImpl = project("hellostream-impl")
-  .settings(version := "1.0-SNAPSHOT")
-  .enablePlugins(LagomJava)
-  .dependsOn(hellostreamApi, helloworldApi)
-  .settings(
-    libraryDependencies += lagomJavadslTestKit
-  )
-  
 lazy val userManagementApi = project("userManagement-api")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
+
+//------ userManagementImpl ------------------------------------
 
 lazy val userManagementImpl = project("userManagement-impl")
   .enablePlugins(LagomJava)
@@ -53,12 +26,18 @@ lazy val userManagementImpl = project("userManagement-impl")
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(userManagementApi)
 
+  
+//------ productManagmentApi ------------------------------------
+  
 lazy val productManagmentApi = project("productManagement-api")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
 
+
+//------ productManagmentImpl ------------------------------------
+  
 lazy val productManagmentImpl = project("productManagement-impl")
   .enablePlugins(LagomJava)
   .settings(
@@ -71,12 +50,18 @@ lazy val productManagmentImpl = project("productManagement-impl")
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(productManagmentApi)
 
+
+//------ ratingApi ------------------------------------  
+  
 lazy val ratingApi = project("rating-api")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
 
+  
+//------ ratingImpl ------------------------------------ 
+  
 lazy val ratingImpl = project("rating-impl")
   .enablePlugins(LagomJava)
   .settings(
@@ -89,11 +74,17 @@ lazy val ratingImpl = project("rating-impl")
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(ratingApi)
 
+  
+//------ messagingApi ------------------------------------  
+  
 lazy val messagingApi = project("messaging-api")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
+
+  
+//------ messagingImpl ------------------------------------
   
 lazy val messagingImpl = project("messaging-impl")
   .enablePlugins(LagomJava)
@@ -105,14 +96,20 @@ lazy val messagingImpl = project("messaging-impl")
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(messagingApi, userManagementApi)
+  .dependsOn(messagingApi)
 
+
+//------ sellingApi ------------------------------------  
+  
 lazy val sellingApi = project("selling-api")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies += lagomJavadslApi
   )
 
+  
+//------ sellingImpl ------------------------------------  
+  
 lazy val sellingImpl = project("selling-impl")
   .enablePlugins(LagomJava)
   .settings(
@@ -123,7 +120,9 @@ lazy val sellingImpl = project("selling-impl")
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(messagingApi, ratingApi, productManagmentApi )
+.dependsOn(messagingApi, ratingApi, productManagmentApi )
+
+//---------------------------------------------
 
 def project(id: String) = Project(id, base = file(id))
   .settings(eclipseSettings: _*)
