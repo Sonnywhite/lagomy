@@ -31,7 +31,8 @@ public interface ProductService extends Service {
    * Example:
    * http://localhost:9000/api/product/add
    * Content-Type : application/json
-   * {"productName":"Cake", 
+   * {"productId":"nnn", 
+      "productName":"Cake", 
       "sellerName":"Antonidas", 
       "description":"Choko", 
       "photoPath":"path58", 

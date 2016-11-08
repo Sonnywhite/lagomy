@@ -22,9 +22,9 @@ public final class Product {
   public final int price;
   public final boolean sold;
 
-  /**
-   * etrxa constructor with id
-   */
+
+  
+  @JsonCreator
   public Product(String productId, String productName, String sellerName, String description, String photoPath, int price, boolean sold) {
       this.productId = Preconditions.checkNotNull(productId, "productId is null, du Depp");
       this.productName = Preconditions.checkNotNull(productName, "productName is null, du Depp");
@@ -35,16 +35,6 @@ public final class Product {
       this.sold = Preconditions.checkNotNull(sold, "sold is null, du Depp");
   }
   
-  @JsonCreator
-  public Product(String productName, String sellerName, String description, String photoPath, int price, boolean sold) {
-      this.productId = "tbd";
-      this.productName = Preconditions.checkNotNull(productName, "productName is null, du Depp");
-      this.sellerName = Preconditions.checkNotNull(sellerName, "sellerName is null, du Depp");
-      this.description = Preconditions.checkNotNull(description, "itemDescription is null, du Depp");
-      this.photoPath = Preconditions.checkNotNull(photoPath, "photoPath is null, du Depp");
-      this.price = Preconditions.checkNotNull(price, "price is null, du Depp");
-      this.sold = Preconditions.checkNotNull(sold, "sold is null, du Depp");
-  }
   
   public Product asSold(){
     return new Product(productId, productName, sellerName, description, photoPath, price, true);
