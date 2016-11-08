@@ -63,6 +63,8 @@ public class MessageServiceImpl implements MessageService {
                                                 row.getString("message"),
                                                 row.getString("receiver")))
                                         .collect(Collectors.toList());
+
+
                         return TreePVector.from(messageList);
                     });
             return result;

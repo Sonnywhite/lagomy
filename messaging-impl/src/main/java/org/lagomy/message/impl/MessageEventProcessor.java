@@ -73,11 +73,13 @@ public class MessageEventProcessor extends CassandraReadSideProcessor<MessageEve
 
 
     private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
+
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS newmessage ("
                         + "messageId text, sender text, message text,"
                         + "receiver text, "
                         + "PRIMARY KEY (messageId))")
+
                 .thenCompose(a -> session.executeCreateTable(
                         "CREATE TABLE IF NOT EXISTS message_offset ("
                                 + "partition int, offset timeuuid, "
