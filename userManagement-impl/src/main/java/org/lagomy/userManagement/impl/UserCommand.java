@@ -13,19 +13,25 @@ import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import com.lightbend.lagom.serialization.Jsonable;
 
 import akka.Done;
+
 import org.lagomy.userManagement.api.User;
 
 
 public interface UserCommand extends Jsonable {
-
+  
+  
+//-----------------------------------------------------------------------------------------------------------------------------
+//    CreateUser (Command)
+//-----------------------------------------------------------------------------------------------------------------------------
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
   public final class CreateUser implements UserCommand, PersistentEntity.ReplyType<Done> {
+    
     public final User user;
 
     @JsonCreator
-    public CreateUser(User user) { //Creat POJO
+    public CreateUser(User user) {
       this.user = Preconditions.checkNotNull(user, "user");
     }
 
@@ -37,7 +43,7 @@ public interface UserCommand extends Jsonable {
     }
 
     private boolean equalTo(CreateUser another) {
-      return user.equals(another.user);
+      return user == another.user;
     }
 
     @Override
@@ -53,20 +59,38 @@ public interface UserCommand extends Jsonable {
     }
   }
 
-
+  
+//-----------------------------------------------------------------------------------------------------------------------------
+//   CheckLogin(Command)
+//-----------------------------------------------------------------------------------------------------------------------------
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
-  public final class GetUser implements UserCommand,PersistentEntity.ReplyType<GetUserReply> {
+  public final class CheckLogin implements UserCommand,PersistentEntity.ReplyType<Boolean> {
+    
+    public final User user;
+
+    @JsonCreator
+    public CheckLogin(User user) {
+      this.user = Preconditions.checkNotNull(user, "user");
+    }
 
     @Override
     public boolean equals(@Nullable Object another) {
-      return this instanceof GetUser;
+      if (this == another)
+        return true;
+      return another instanceof CheckLogin && equalTo((CheckLogin) another);
+    }
+
+    private boolean equalTo(CheckLogin another) {
+      return user == another.user;
     }
 
     @Override
     public int hashCode() {
-      return 2053226012;
+      int h = 31;
+      h = h * 17 + user.hashCode();
+      return h;
     }
 
     @Override
@@ -110,40 +134,6 @@ public interface UserCommand extends Jsonable {
     }
   }
 
-  @SuppressWarnings("serial")
-  @Immutable
-  @JsonDeserialize
-  public final class AddFriend implements UserCommand,PersistentEntity.ReplyType<Done> {
-    public final String friendUserId;
-
-    @JsonCreator
-    public AddFriend(String friendUserId) {
-      this.friendUserId = Preconditions.checkNotNull(friendUserId, "friendUserId");
-    }
-
-    @Override
-    public boolean equals(@Nullable Object another) {
-      if (this == another)
-        return true;
-      return another instanceof AddFriend && equalTo((AddFriend) another);
-    }
-
-    private boolean equalTo(AddFriend another) {
-      return friendUserId.equals(another.friendUserId);
-    }
-
-    @Override
-    public int hashCode() {
-      int h = 31;
-      h = h * 17 + friendUserId.hashCode();
-      return h;
-    }
-
-    @Override
-    public String toString() {
-      return MoreObjects.toStringHelper("AddFriend").add("friendUserId", friendUserId).toString();
-    }
-  }
 
 }
 
