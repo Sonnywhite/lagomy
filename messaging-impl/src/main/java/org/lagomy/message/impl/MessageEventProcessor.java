@@ -74,7 +74,7 @@ public class MessageEventProcessor extends CassandraReadSideProcessor<MessageEve
 
     private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
         return session.executeCreateTable(
-                "CREATE TABLE IF NOT EXISTS messages ("
+                "CREATE TABLE IF NOT EXISTS newmessage ("
                         + "messageId text, sender text, message text,"
                         + "receiver text, "
                         + "PRIMARY KEY (messageId))")
@@ -87,7 +87,7 @@ public class MessageEventProcessor extends CassandraReadSideProcessor<MessageEve
 
     private CompletionStage<Done> prepareWriteMessage(CassandraSession session) {
         return session
-                .prepare("INSERT INTO messages"
+                .prepare("INSERT INTO newmessage"
                         + "(messageId, sender, message, "
                         + "receiver ) VALUES (?, ?,?,?)")
                 .thenApply(ps -> {
@@ -103,7 +103,7 @@ public class MessageEventProcessor extends CassandraReadSideProcessor<MessageEve
         return builder.build();
     }
 
-    private CompletionStage<List<BoundStatement>>  processMessageCreated(org.lagomy.message.impl.MessageEvent.MessageCreated event, UUID offset) {
+    private CompletionStage<List<BoundStatement>>  processMessageCreated(MessageEvent.MessageCreated event, UUID offset) {
 // bind the prepared statement
         BoundStatement bindWriteMessage = writeMessages.bind();
 // insert values into prepared statement

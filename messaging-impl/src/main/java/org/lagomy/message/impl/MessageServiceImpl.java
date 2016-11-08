@@ -24,9 +24,7 @@ import java.util.stream.Collectors;
 public class MessageServiceImpl implements MessageService {
 
     private final PersistentEntityRegistry persistentEntityRegistry;
-    //    private final PubSubRegistry topics;
     private final CassandraSession db;
-    //private final Logger log = LoggerFactory.getLogger(MessageServiceImpl.class);
 
     @Inject
     public MessageServiceImpl(PersistentEntityRegistry persistentEntityRegistry, CassandraReadSide readSide,
@@ -41,41 +39,40 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public ServiceCall<Message, Done> sendMessage(String receiver, String token) {
+    public ServiceCall<Message, Done> sendMessage(String receiver) {
         return request -> {
 
-
-            return messageEntityRef(request.messageId).ask((new SendMessage(request)));
+            PersistentEntityRef<MessageCommand> ref = persistentEntityRegistry.refFor(MessageEntity.class, request.messageId);
+            return ref.ask(new SendMessage(request));
+            //return messageEntityRef(request.messageId).ask((new SendMessage(request)));
 
         };
     }
 
     @Override
-    public ServiceCall<NotUsed, PSequence<Message>> getAllMessages(String owner, String token) {
+    public ServiceCall<NotUsed, PSequence<Message>> getAllMessages(String owner) {
 
         return (req) -> {
             CompletionStage<PSequence<Message>>
-                    result = db.selectAll("SELECT messageId,"
-                    + "sender, message, receiver"
-                    + " FROM messages")
+                    result = db.selectAll("SELECT * FROM newmessage")
                     .thenApply(rows -> {
-                        List<Message> messages =
+                        List<Message> messageList =
                                 rows.stream().map(row ->
                                         new Message(row.getString("messageId"),
                                                 row.getString("sender"),
                                                 row.getString("message"),
                                                 row.getString("receiver")))
                                         .collect(Collectors.toList());
-                        return TreePVector.from(messages);
+                        return TreePVector.from(messageList);
                     });
             return result;
         };
     }
 
-    @Override
-    public ServiceCall<NotUsed, Message> getMessage(String sender) {
-        return null;
-    }
+//    @Override
+//    public ServiceCall<NotUsed, Message> getMessage(String sender) {
+//        return null;
+//    }
 
 //    @Override
 //    public ServiceCall<NotUsed, Message> getMessage(String sender) {
@@ -89,8 +86,8 @@ public class MessageServiceImpl implements MessageService {
 //        };
 //    }
 
-    private PersistentEntityRef<MessageCommand> messageEntityRef(String messageId) {
+    /*private PersistentEntityRef<MessageCommand> messageEntityRef(String messageId) {
         PersistentEntityRef<MessageCommand> ref = persistentEntityRegistry.refFor(MessageEntity.class, messageId);
         return ref;
-    }
+    }*/
 }
