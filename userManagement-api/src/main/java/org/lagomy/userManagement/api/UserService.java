@@ -4,15 +4,12 @@
 package org.lagomy.userManagement.api;
 
 import static com.lightbend.lagom.javadsl.api.Service.named;
-import static com.lightbend.lagom.javadsl.api.Service.namedCall;
 import static com.lightbend.lagom.javadsl.api.Service.pathCall;
 
-import akka.NotUsed;
+import akka.Done;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
-import com.lightbend.lagom.javadsl.api.transport.Method;
-import org.pcollections.PSequence;
 
 /**
  * The friend service.
@@ -20,26 +17,29 @@ import org.pcollections.PSequence;
 public interface UserService extends Service {
 
   /**
-   * Service call for getting a user.
-   *
-   * The ID of this service call is the user name, and the response message is the User object.
+   * Example: 
+   * http://localhost:9000/api/users/create
+   * "Content-Type: application/json" 
+   * {"username":"Peter", "password":"123"}
    */
-  ServiceCall<NotUsed, User> getUser(String username, String password);
+  ServiceCall<User, Done> createUser();
 
   /**
-   * Service call for creating a user.
-   *
-   * The request message is the User to create.
+   * Example: 
+   * http://localhost:9000/api/users/check
+   * "Content-Type: application/json" 
+   * {"username":"Peter", "password":"123"} 
+   * -> returns true/false
    */
-  ServiceCall<User, NotUsed> createUser();
+  ServiceCall<User, Boolean> checkLogin();
 
 
   @Override
   default Descriptor descriptor() {
     // @formatter:off
-    return named("friendservice").withCalls(
-        pathCall("/api/users/:username/:password", this::getUser),
-        namedCall("/api/users", this::createUser)
+    return named("userservice").withCalls(
+        pathCall("/api/users/create", this::createUser),
+        pathCall("/api/users/check", this::checkLogin)
       ).withAutoAcl(true);
     // @formatter:on
   }

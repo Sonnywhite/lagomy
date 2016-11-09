@@ -3,14 +3,8 @@
  */
 package org.lagomy.userManagement.api;
 
-import java.util.Optional;
-
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-import org.pcollections.PSequence;
-import org.pcollections.TreePVector;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
@@ -30,8 +24,7 @@ public final class User {
   public User(String username, String password) {
     this.username = Preconditions.checkNotNull(username, "username");
     this.password = Preconditions.checkNotNull(password, "password");
-    //this.friends = friends.orElse(TreePVector.empty());
-  } // { "userId":"saeideh", "name":"saeideh", "friends":["f1","f2",...]}
+  }
 
   @Override
   public boolean equals(@Nullable Object another) {
