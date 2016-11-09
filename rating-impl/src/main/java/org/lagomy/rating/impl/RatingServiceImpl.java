@@ -12,7 +12,7 @@ import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import javax.inject.Inject;
 
 import org.lagomy.rating.impl.RatingCommand.*;
-
+import org.pcollections.PCollection;
 import org.lagomy.rating.api.Rating;
 import org.lagomy.rating.api.RatingService;
 
@@ -47,7 +47,26 @@ public class RatingServiceImpl implements RatingService {
       // Tell the entity to use the greeting message specified.
       return ref.ask(new RateSeller(request.newRating));
     };
+  }
 
+  @Override
+  public ServiceCall<NotUsed, Done> orderRating(String buyerName, String sellerName) {
+    return request -> {
+      // Look up the world entity for the given ID.
+      PersistentEntityRef<RatingCommand> ref = persistentEntityRegistry.refFor(RatingWorld.class, buyerName);
+      // Tell the entity store the sellerName as RateOrder
+      return ref.ask(new OrderRating(sellerName));
+    };
+  }
+
+  @Override
+  public ServiceCall<NotUsed, PCollection<String>> getAllRatingOrders(String buyerName) {
+    return request -> {
+      // Look up the world entity for the given ID.
+      PersistentEntityRef<RatingCommand> ref = persistentEntityRegistry.refFor(RatingWorld.class, buyerName);
+      // Ask the entity the Hello command.
+      return ref.ask(new GetRatingOrders(buyerName));
+    };
   }
 
 }

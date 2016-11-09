@@ -6,6 +6,8 @@ package org.lagomy.rating.impl;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import org.pcollections.PCollection;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
@@ -116,4 +118,86 @@ public interface RatingCommand extends Jsonable {
     }
   }
 
+//-----------------------------------------------------------------------------------------------------------------------------
+//    OrderRating (Command)
+//-----------------------------------------------------------------------------------------------------------------------------
+  /**
+   * A command to showInterest
+   * <p>
+   * It has a reply type of {@link akka.Done}, which is sent back to the caller
+   * when all the events emitted by this command are successfully persisted.
+   */
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class OrderRating implements RatingCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
+    
+    public final String sellerName;
+
+    @JsonCreator
+    public OrderRating(String sellerName) {
+      this.sellerName = Preconditions.checkNotNull(sellerName, "sellerName");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof OrderRating && equalTo((OrderRating) another);
+    }
+
+    private boolean equalTo(OrderRating another) {
+      return sellerName.equals(another.sellerName);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + sellerName.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("OrderRatingCommand").add("userName", sellerName).toString();
+    }
+  }
+
+//-----------------------------------------------------------------------------------------------------------------------------
+//    GetRatingOrder (Command)
+//-----------------------------------------------------------------------------------------------------------------------------
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class GetRatingOrders implements RatingCommand, PersistentEntity.ReplyType<PCollection<String>> {
+    public final String buyerName;
+
+    @JsonCreator
+    public GetRatingOrders(String buyerName) {
+      this.buyerName = Preconditions.checkNotNull(buyerName, "buyerName");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof GetRatingOrders && equalTo((GetRatingOrders) another);
+    }
+
+    private boolean equalTo(GetRatingOrders another) {
+      return buyerName.equals(another.buyerName);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + buyerName.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("Hello").add("buyerName", buyerName).toString();
+    }
+  }
 }

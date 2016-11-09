@@ -6,8 +6,6 @@ package org.lagomy.rating.api;
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.pathCall;
 
-import org.pcollections.PCollection;
-
 import akka.Done;
 import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.Descriptor;
@@ -31,27 +29,12 @@ public interface RatingService extends Service {
    */
   ServiceCall<Rating, Done> rateSeller(String sellerName);
 
-  /**
-   * Example: 
-   * http://localhost:9000/api/rating/order/Daniel/Matze <- Daniel shall rate Matze
-   */
-  ServiceCall<NotUsed, Done> orderRating(String buyerName, String sellerName);
-
-  /**
-   * Example:
-   * http://localhost:9000/api/rating/ask/order/Daniel
-   */
-  ServiceCall<NotUsed, PCollection<String>> getAllRatingOrders(String buyerName);
-
-
   @Override
   default Descriptor descriptor() {
     // @formatter:off
     return named("ratingservice").withCalls(
         pathCall("/api/rating/get/:sellerName",  this::getRating),
-        pathCall("/api/rating/rate/:sellerName", this::rateSeller),
-        pathCall("/api/rating/order/:buyerName/:sellerName", this::orderRating),
-        pathCall("/api/rating/ask/order/:sellerName", this::getAllRatingOrders)
+        pathCall("/api/rating/rate/:sellerName", this::rateSeller)
       ).withAutoAcl(true);
     // @formatter:on
   }
