@@ -20,7 +20,7 @@ import static com.lightbend.lagom.javadsl.api.Service.named;
 public interface MessageService extends Service {
 
 
-    ServiceCall<Message, Done> sendMessage(String receiver);
+    ServiceCall<Message, Done> sendMessage();
     ServiceCall<NotUsed, PSequence<Message>> getAllMessages(String owner);
 //    ServiceCall<NotUsed, Message> getMessage(String sender);
     //ServiceCall<RateMessage, Done> invokeRating(String receiver);
@@ -29,7 +29,7 @@ public interface MessageService extends Service {
     default Descriptor descriptor() {
         return named("messages").withCalls(
 //                pathCall("/messages/:sender", this::getMessage),
-                pathCall("/messages/:receiver", this::sendMessage),
+                pathCall("/messages", this::sendMessage),
                 pathCall("/messages/:owner", this::getAllMessages)
                 //pathCall( "/messages/:username", this::invokeRating)
         ).withAutoAcl(true);
