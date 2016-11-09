@@ -6,6 +6,7 @@ package org.lagomy.selling.impl;
 import javax.inject.Inject;
 
 import org.lagomy.productManagement.api.ProductService;
+import org.lagomy.rating.api.RatingService;
 import org.lagomy.selling.api.SellingService;
 import org.lagomy.selling.api.User;
 import org.lagomy.selling.impl.SellingCommand.GetInterested;
@@ -26,11 +27,14 @@ public class SellingServiceImpl implements SellingService {
 
   private final PersistentEntityRegistry persistentEntityRegistry;
   private final ProductService productService;
+  private final RatingService ratingService;
 
   @Inject
-  public SellingServiceImpl(PersistentEntityRegistry persistentEntityRegistry, ProductService productService) {
+  public SellingServiceImpl(PersistentEntityRegistry persistentEntityRegistry, ProductService productService,
+      RatingService ratingService) {
     this.persistentEntityRegistry = persistentEntityRegistry;
     this.productService = productService;
+    this.ratingService = ratingService;
     persistentEntityRegistry.register(SellingWorld.class);
   }
 
@@ -57,7 +61,8 @@ public class SellingServiceImpl implements SellingService {
 
   @Override
   public ServiceCall<User, Done> sellProduct(String productId, String buyerName) {
-    return request -> productService.markAsSold(productId).invoke();
+    return request -> productService.markAsSold(productId).invoke().thenCompose(
+        a -> ratingService.orderRating(buyerName, request.userName).invoke());
   }
 
 }

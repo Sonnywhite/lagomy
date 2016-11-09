@@ -7,6 +7,7 @@ import com.google.inject.AbstractModule;
 import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
 
 import org.lagomy.productManagement.api.ProductService;
+import org.lagomy.rating.api.RatingService;
 import org.lagomy.selling.api.SellingService;
 
 /**
@@ -17,5 +18,6 @@ public class SellingServiceModule extends AbstractModule implements ServiceGuice
   protected void configure() {
     bindServices(serviceBinding(SellingService.class, SellingServiceImpl.class));
     bindClient(ProductService.class);
+    bindClient(RatingService.class);
   }
 }
