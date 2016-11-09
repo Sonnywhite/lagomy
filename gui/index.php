@@ -7,7 +7,12 @@
 	<body>
 	
 		<div class="centered_box">
-			<?php include "./navigation.php"; ?>
+			<?php include "./navigation.php"; 
+			
+			$products = getAllProducts();
+			$arrLen = count($products);
+			
+			?>
 			<table>
 				<tr>
 					<th>Name</th><th>Description</th><th>Price</th><th>Seller (Rating)</th><?php if($LOGGED_IN) echo "<th></th>"; ?>

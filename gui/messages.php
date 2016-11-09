@@ -14,7 +14,7 @@
 					<th>From</th><th>Content</th><th>Date</th><th></th>
 				</tr>
 				<?php
-				$messages = getMyMessages("username", "token");
+				$messages = getMyMessages("username");
 				$arrLen = count($messages);
 				for($i = 0; $i < $arrLen; $i++) {
 					$content_arr = explode(" ", trim($messages[$i]['content']));

@@ -3,15 +3,15 @@
 	require_once './auth.php'; 
 	
 	if($_POST['action'] == "login") {
-		// Verify the Login with CORE
+		
+		$correct = checkLogin($_POST['username'],$_POST['password']);
 		
 		// if it is correct => set up SESSION
-		// TODO: use username from CORE response instead of POST
 		$_SESSION = array(
 			'username'  => $_POST['username']
 		);
 		
-		header('Location: ./index.php');
+		header( "refresh:5;url=./index.php" );
 	}
 	
 ?>
@@ -20,12 +20,13 @@
 	<body>
 	
 		<div class="centered_centered_box">
-			<form class="login_form" action="" method="post">
+			<form class="login_form" action="./login.php" method="post">
 				<input type="hidden" name="action" value="login"/>
 				Username: <input required type="text" name="username" /><br/>
 				Password: <input required type="password" name="password" /><br/>
 				<button>Login</button>
 			</form>
+			<?php if($_POST['action'] == "login") { echo $correct; } ?>
 		</div>
 		
 	</body>
