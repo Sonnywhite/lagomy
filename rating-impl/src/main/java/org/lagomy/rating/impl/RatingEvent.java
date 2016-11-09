@@ -5,7 +5,6 @@ package org.lagomy.rating.impl;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
@@ -20,9 +19,9 @@ import com.lightbend.lagom.serialization.Jsonable;
  */
 public interface RatingEvent extends Jsonable {
 
-  /**
-   * An event that represents a change in greeting message.
-   */
+//-----------------------------------------------------------------------------------------------------------------------------
+//  SellerRated (Event)
+//-----------------------------------------------------------------------------------------------------------------------------
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
@@ -55,6 +54,45 @@ public interface RatingEvent extends Jsonable {
     @Override
     public String toString() {
       return MoreObjects.toStringHelper("SellerRated").add("newRating", newRating).toString();
+    }
+  }
+
+//-----------------------------------------------------------------------------------------------------------------------------
+//  RatingOrdered (Event)
+//-----------------------------------------------------------------------------------------------------------------------------
+  @SuppressWarnings("serial")
+  @Immutable
+  @JsonDeserialize
+  public final class RatingOrdered implements RatingEvent {
+    
+    public final String sellerName;
+
+    @JsonCreator
+    public RatingOrdered(String sellerName) {
+      this.sellerName = Preconditions.checkNotNull(sellerName, "sellerName");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object another) {
+      if (this == another)
+        return true;
+      return another instanceof RatingOrdered && equalTo((RatingOrdered) another);
+    }
+
+    private boolean equalTo(RatingOrdered another) {
+      return sellerName.equals(another.sellerName);
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 31;
+      h = h * 17 + sellerName.hashCode();
+      return h;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper("RatingOrdered").add("userName", sellerName).toString();
     }
   }
 }

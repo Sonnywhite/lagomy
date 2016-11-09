@@ -20,9 +20,9 @@ import com.lightbend.lagom.serialization.Jsonable;
  */
 public interface SellingEvent extends Jsonable {
 
-  /**
-   * An event that represents a change in greeting message.
-   */
+//-----------------------------------------------------------------------------------------------------------------------------
+//  InterestShowed (Event)
+//-----------------------------------------------------------------------------------------------------------------------------
   @SuppressWarnings("serial")
   @Immutable
   @JsonDeserialize
@@ -57,4 +57,5 @@ public interface SellingEvent extends Jsonable {
       return MoreObjects.toStringHelper("InterestShowed").add("userName", userName).toString();
     }
   }
+
 }

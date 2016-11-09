@@ -5,6 +5,7 @@ package org.lagomy.selling.impl;
 
 import javax.inject.Inject;
 
+import org.lagomy.productManagement.api.ProductService;
 import org.lagomy.selling.api.SellingService;
 import org.lagomy.selling.api.User;
 import org.lagomy.selling.impl.SellingCommand.GetInterested;
@@ -24,10 +25,12 @@ import akka.NotUsed;
 public class SellingServiceImpl implements SellingService {
 
   private final PersistentEntityRegistry persistentEntityRegistry;
+  private final ProductService productService;
 
   @Inject
-  public SellingServiceImpl(PersistentEntityRegistry persistentEntityRegistry) {
+  public SellingServiceImpl(PersistentEntityRegistry persistentEntityRegistry, ProductService productService) {
     this.persistentEntityRegistry = persistentEntityRegistry;
+    this.productService = productService;
     persistentEntityRegistry.register(SellingWorld.class);
   }
 
@@ -54,8 +57,7 @@ public class SellingServiceImpl implements SellingService {
 
   @Override
   public ServiceCall<User, Done> sellProduct(String productId, String buyerName) {
-    // TODO Auto-generated method stub
-    return null;
+    return request -> productService.markAsSold(productId).invoke();
   }
 
 }
