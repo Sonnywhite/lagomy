@@ -1,4 +1,4 @@
-organization in ThisBuild := "sample.helloworld"
+organization in ThisBuild := "org.lagomy"
 
 // the Scala version that will be used for cross-compiled libraries
 scalaVersion in ThisBuild := "2.11.8"
@@ -120,7 +120,7 @@ lazy val sellingImpl = project("selling-impl")
     )
   )
   .settings(lagomForkedTestSettings: _*)
-.dependsOn(messagingApi, ratingApi, productManagmentApi )
+.dependsOn(sellingApi, messagingApi, ratingApi, productManagmentApi )
 
 //---------------------------------------------
 
