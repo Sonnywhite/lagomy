@@ -6,6 +6,8 @@ package org.lagomy.rating.impl;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import org.pcollections.PCollection;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
@@ -22,11 +24,13 @@ public final class RatingState implements CompressedJsonable {
 
   public final int ratingSum;
   public final int ratingCount;
+  public final PCollection<String> rateOrders;
 
   @JsonCreator
-  public RatingState(int ratingSum, int ratingCount) {
+  public RatingState(int ratingSum, int ratingCount, PCollection<String> rateOrders) {
     this.ratingSum = Preconditions.checkNotNull(ratingSum, "ratingSum");
     this.ratingCount = Preconditions.checkNotNull(ratingCount, "ratingCount");
+    this.rateOrders = Preconditions.checkNotNull(rateOrders, "rateOrders");
   }
   
   /**
@@ -36,11 +40,19 @@ public final class RatingState implements CompressedJsonable {
    * @return
    */
   public RatingState withAddedNewRating(int newRating){
-    return new RatingState(ratingSum + newRating, ratingCount + 1);
+    return new RatingState(ratingSum + newRating, ratingCount + 1, rateOrders);
+  }
+  
+  public RatingState withRatingOrder(String sellerName){
+    return new RatingState(ratingSum, ratingCount, rateOrders.plus(sellerName));
   }
   
   public double getRating(){
     return (ratingCount < 1) ? -1 : (ratingSum*1.0/ratingCount);
+  }
+
+  public PCollection<String> getRateOrders() {
+    return rateOrders;
   }
 
   @Override

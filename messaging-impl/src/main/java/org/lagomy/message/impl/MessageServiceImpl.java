@@ -17,6 +17,7 @@ import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
 
 import javax.inject.Inject;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public ServiceCall<Message, Done> sendMessage(String receiver) {
+    public ServiceCall<Message, Done> sendMessage() {
         return request -> {
 
             PersistentEntityRef<MessageCommand> ref = persistentEntityRegistry.refFor(MessageEntity.class, request.messageId);
@@ -63,6 +64,19 @@ public class MessageServiceImpl implements MessageService {
                                                 row.getString("message"),
                                                 row.getString("receiver")))
                                         .collect(Collectors.toList());
+                        System.out.println("\n"+ messageList+ " " + messageList.size());
+                        for(Iterator<Message> messages = messageList.iterator(); messages.hasNext();){
+                            Message mess = messages.next();
+
+                            if(!mess.sender.equals(owner) && !mess.receiver.equals(owner)){
+                                messages.remove();
+                            }
+                        }
+                            /*for(Message mess: messageList){
+                                if(mess.sender.equals(owner) || mess.receiver.equals(owner)){
+                                    messageList.remove(mess);
+                                }
+                            }*/
                         return TreePVector.from(messageList);
                     });
             return result;
