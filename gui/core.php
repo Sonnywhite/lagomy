@@ -1,13 +1,8 @@
 <?php
 
 // get all products
-function getAllProducts() {
+function getAllProducts() {	
 	
-	// TODO: connect to microservice
-	// TODO: prepare response	
-	
-	
-	$url2 = "http://localhost:9000/api/hello/World";
 	$url = "http://localhost:9000/api/product/get/all";
 	$curl = curl_init();
 	
@@ -37,6 +32,17 @@ function getMyProducts() {
 
 // get my messages
 function getMyMessages($username) {
+	
+	$url = "http://localhost:9000/messages/".$username;
+	$curl = curl_init();
+	
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+	
+	$result = curl_exec($curl);
+	
+	curl_close($curl);
 	
 	$test_message1 = array("from" => "resu", "content" => "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.", "date" => "12.10.2016 20:16");
 	$test_message2 = array("from" => "anoN", "content" => "Hello this is only a small text", "date" => "2.10.2016 20:16");
