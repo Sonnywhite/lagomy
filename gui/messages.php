@@ -2,32 +2,60 @@
 	require_once './core.php';
 	require_once './auth.php'; 
 ?>
-<?php if(!$LOGGED_IN) exit(); ?>
+<?php if(!$LOGGED_IN) exit(); 
+
+if(isset($_POST["action"]) && $_POST["action"] == "sendMessage") {
+	$gotAllParams = isset($_POST["receiver"])?$_POST["receiver"]!="":false;
+	if($gotAllParams) $gotAllParams = isset($_POST["content"])?$_POST["content"]!="":false;
+	if($gotAllParams) $gotAllParams = isset($_SESSION["username"])?$_SESSION["username"]!="":false;
+	
+	if(!$gotAllParams) {
+		$result = "Not every parameter was set!<br>"
+			.'receiver = '.$_POST["receiver"].'<br>'
+			.'content = '.$_POST["content"].'<br>'
+			.'username = '.$_SESSION["username"].'<br>';
+	}
+	else {	
+		
+		$result = sendMessage(
+			"".microtime(),
+			$_SESSION["username"],
+			$_POST["content"],
+			$_POST["receiver"]
+		);
+	}
+}
+
+?>
 <html>
 	<?php include "./header.php"; ?>
 	<body>
 	
 		<div class="centered_box">
 			<?php include "./navigation.php"; ?>
+			<form class="new_product_form" action="./messages.php" method="post">
+				<b>Send a message</b><br><br>
+				To (username): <br/>
+				<input name="receiver" type="text" /><br/>
+				Content: <br/>
+				<textarea name="content" rows="4" cols="50"></textarea><br/>
+				<button name="action" value="sendMessage">Send</button>
+			</form>
+			<?php if($result != "") {
+				echo $result;
+			}?>
 			<table>
 				<tr>
-					<th>From</th><th>Content</th><th>Date</th><th></th>
+					<th>From</th><th>To</th><th>Content</th>
 				</tr>
 				<?php
-				$messages = getMyMessages("username");
+				$messages = getMyMessages($_SESSION['username']);
 				$arrLen = count($messages);
 				for($i = 0; $i < $arrLen; $i++) {
-					$content_arr = explode(" ", trim($messages[$i]['content']));
-					if(count($content_arr)>5)	
-						$preview = $content_arr[0]." ".$content_arr[1]." ".$content_arr[2]." ".$content_arr[3]." ".$content_arr[4]." ...";
-					else
-						$preview = $messages[$i]['content'];
-					echo "<tr id='product_row_".$i."'>"
-							."<td>".$messages[$i]['from']."</td>"
-							."<td id='preview_".$i."'>".$preview."</td>"
-							."<td class='invis_row' id='invis_message_row_".$i."'>".$messages[$i]['content']."</td>"
-							."<td>".$messages[$i]['date']."</td>"
-							."<td><button onclick='switchVisibility(&quot;preview_".$i."&quot;,&quot;invis_message_row_".$i."&quot;)'>Expand</button></td>"
+					echo "<tr>"
+							."<td style='width:10%'>".$messages[$i]['sender']."</td>"
+							."<td style='width:10%'>".$messages[$i]['receiver']."</td>"
+							."<td>".$messages[$i]['message']."</td>"
 						."</tr>";
 				}
 				

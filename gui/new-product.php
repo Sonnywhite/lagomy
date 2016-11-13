@@ -43,11 +43,11 @@ if(isset($_POST["action"]) && $_POST["action"] == "addProduct") {
 				<input name="productName" type="text" /><br/>
 				Description: <br/>
 				<textarea name="description" rows="4" cols="50"></textarea><br/>
-				Price: <br/>
-				<input name="price" type="text" /><br/>
+				Price (in SEK): <br/>
+				<input name="price" type="number" min="1" step="1"/><br/>
 				Picture Upload (coming soon): <br/>
 				<input readonly name="photoPath" type="text" value="placeholder" /><br/>
-				<button name="action" value="addProduct">Submit</button>
+				<button name="action" value="addProduct">Add my product</button>
 			</form>
 			<?php if($result != "") {
 				echo $result;
