@@ -6,12 +6,16 @@
 		
 		$correct = checkLogin($_POST['username'],$_POST['password']);
 		
-		// if it is correct => set up SESSION
-		$_SESSION = array(
-			'username'  => $_POST['username']
-		);
-		
-		header( "refresh:5;url=./index.php" );
+		$result = "";
+		if($correct == "true") {
+			// if it is correct => set up SESSION
+			$_SESSION = array(
+				'username'  => $_POST['username']
+			);
+			
+			header( "refresh:0;url=./index.php" );
+		} else
+			$result = "username/password was wrong!";
 	}
 	
 ?>
@@ -26,7 +30,7 @@
 				Password: <input required type="password" name="password" /><br/>
 				<button>Login</button>
 			</form>
-			<?php if($_POST['action'] == "login") { echo $correct; } ?>
+			<?php if($_POST['action'] == "login" && $result != "") { echo $result; } ?>
 		</div>
 		
 	</body>

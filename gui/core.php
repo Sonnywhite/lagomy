@@ -221,4 +221,73 @@ function rate($sellerName, $rating) {
 	
 }
 
+function showInterest($username, $productId) {
+	$data_array = array(
+		"userName" => $username
+	);
+	$data_string = json_encode($data_array);
+	
+	$url = "http://localhost:9000/api/selling/interest/show/".$productId;
+	$curl = curl_init();
+	
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_POST, 1);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array(                                                                          
+		'Content-Type: application/json',                                                                                
+		'Content-Length: ' . strlen($data_string))                                                                       
+	);
+	
+	$result = curl_exec($curl);
+	
+	curl_close($curl);
+	
+	return $result;
+}
+
+function getAllInterests($productId) {
+	
+	$url = "http://localhost:9000/api/selling/interest/get/".$productId;
+	$curl = curl_init();
+	
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+	
+	$result = curl_exec($curl);
+	
+	curl_close($curl);
+	
+	return array_unique(json_decode($result,true));
+	
+}
+
+function sellProduct($productId, $buyerName, $seller) {
+	
+	$data_array = array(
+		"userName" => $seller
+	);
+	$data_string = json_encode($data_array);
+	
+	$url = "http://localhost:9000/api/selling/sell/".$productId."/".$buyerName;
+	$curl = curl_init();
+	
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_POST, 1);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array(                                                                          
+		'Content-Type: application/json',                                                                                
+		'Content-Length: ' . strlen($data_string))                                                                       
+	);
+	
+	$result = curl_exec($curl);
+	
+	curl_close($curl);
+	
+	return $result;
+	
+}
+
 ?>
